@@ -1,0 +1,57 @@
+.videoFrame{
+    width: 100%;
+    height: auto;
+    padding: 0px 5px;
+    box-sizing: border-box;
+}
+
+.videoFrame li{
+    width: 100%;
+    height: 180px;
+    list-style: none;
+    margin: 5px 0px;
+    background-color: #141414;
+}
+
+.videoFrame li a{
+    width: 100%;
+    height: 180px;
+    display: block;
+    text-decoration: none;
+    color: #FFFFFF;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.videoFrame li a .image{
+    width: 240px;
+    height: 180px;
+}
+
+.videoFrame li a .text{
+    width: calc(100% - 260px);
+    height: 180px;
+    margin: 0px 10px;
+}
+
+.videoFrame li a div .title{
+    width: 100%;
+    height: 120px;
+    line-height: 120px;
+}
+
+.videoFrame li a div .title .titleText{
+    width: 100%;
+    height: auto;
+    display: inline-block;
+    line-height: 60px;
+    font-size: 24px;
+}
+
+.videoFrame li a div .time{
+    width: 100%;
+    height: 60px;
+    line-height: 60px;
+    font-size: 12px;
+}

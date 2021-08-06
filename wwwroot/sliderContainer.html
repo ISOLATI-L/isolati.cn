@@ -1,0 +1,21 @@
+{{ define "container" }}
+
+<head>
+    <link rel="stylesheet" href="/css/sliderContainer.css">
+</head>
+
+<aside class="slider">
+    <font>
+        {{ .LeftSliderData }}
+    </font>
+</aside>
+<div class="content">
+    {{ template "content" .ContentData }}
+</div>
+<aside class="slider">
+    <font>
+        {{ .RightSliderData }}
+    </font>
+</aside>
+
+{{ end }}

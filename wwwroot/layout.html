@@ -1,0 +1,80 @@
+{{ define "layout" }}
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>ISOLATI</title>
+    <link rel="stylesheet" href="/css/layout.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="header_content">
+            <ul class="nav">
+                {{ if eq .PageName "home" }}
+                <li class="active leftBar navHover">
+               {{ else }}
+                <li class="leftBar navHover">
+                {{end}}
+                    <a class="barBtn" href="/home">ISOLATI</a>
+                </li>
+
+                {{ if eq .PageName "videos" }}
+                <li class="active leftBar navHover">
+               {{ else }}
+                <li class="leftBar navHover">
+                {{end}}
+                    <a class="barBtn" href="/videos">视频</a>
+                </li>
+
+                {{ if eq .PageName "files" }}
+                <li class="active leftBar navHover">
+                {{ else }}
+                <li class="leftBar navHover">
+                {{end}}
+                    <a class="barBtn" href="/files">文件</a>
+                </li>
+
+                {{ if eq .PageName "about" }}
+                <li class="active rightBar navHover">
+                {{ else }}
+                <li class="rightBar navHover">
+                {{end}}
+                    <a class="barBtn" href="/about">关于</a>
+                </li>
+
+                <li class="rightBar">
+                    <div class="search_box">
+                        <input class="search_txt transition_init" type="text" placeholder="搜索">
+                        <a class="search_btn transition_init" href="" onfocus="javascript:blur()" onclick="javascript:return false">
+                            <img src="/img/search.svg" alt="">
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container">
+        {{ template "container" .ContainerData }}
+    </div>
+    <footer class="footer">
+        <div class="footer_content">
+            <font>
+                bilibili:
+                <a id="bilibili_link"
+                    target="_blank"
+                    class="transition_init"
+                    href="https://space.bilibili.com/37629502">
+                    爱骚来踢
+                </a>
+            </font>
+        </div>
+    </footer>
+</body>
+</html>
+
+<script type="text/javascript" src="js/layout.js"></script>
+
+{{ end }}

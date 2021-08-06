@@ -1,0 +1,12 @@
+.fileLink{
+    color: #FFFFFF;
+    cursor: pointer;
+    text-decoration: underline;
+    font-family: monospace;
+    white-space: pre;
+}
+
+.fileLink::after{
+    content: "";
+    display: block;
+}

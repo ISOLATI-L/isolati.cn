@@ -1,0 +1,16 @@
+.slider{
+    width: 200px;
+    height: auto;
+    background-color: #101010;
+}
+
+.slider font{
+    color: #FFFFFF;
+}
+
+.content{
+    width: 850px;
+    min-height: calc(100vh - 130px);
+    height: auto;
+    background-color: #101010;
+}

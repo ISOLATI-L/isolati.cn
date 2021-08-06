@@ -1,0 +1,25 @@
+{{ define "content" }}
+
+<head>
+    <link rel="stylesheet" href="/css/videos.css">
+</head>
+
+<ul class="videoFrame">
+{{ range . }}
+<li>
+    <a href="/videos/{{ .Vid }}">
+        <img class="image"
+            src="{{.Vcover}}">
+        </img>
+        <div class="text">
+            <div class="title">
+                <p class="titleText">{{ .Vtitle }}</p>
+            </div>
+            <p class="time">{{ .Vtime }}</p>
+        </div>
+    </a>
+</li>
+{{ end }}
+</ul>
+
+{{ end }}
