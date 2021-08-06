@@ -14,11 +14,9 @@ import (
 
 var filesTemplate = template.New("about")
 
-const FILEPATH = constant_define.SHARE_FILES_PATH
-
 var fileHandler = http.StripPrefix(
 	"/files/",
-	http.FileServer(http.Dir(FILEPATH)),
+	http.FileServer(http.Dir(constant_define.SHARE_FILES_PATH)),
 )
 var filePattern *regexp.Regexp
 var slashPattern *regexp.Regexp
@@ -35,7 +33,7 @@ type fileView struct {
 
 func handleFiles(w http.ResponseWriter, r *http.Request) {
 	matches := filePattern.FindStringSubmatch(r.URL.Path)
-	var filePath = FILEPATH
+	var filePath = constant_define.SHARE_FILES_PATH
 	if len(matches) > 0 {
 		filePath += "/" + matches[1]
 	}
@@ -119,6 +117,6 @@ func registerFilesRoutes() {
 	http.HandleFunc("/files/", handleFiles)
 	// http.Handle(
 	// 	"/files/",
-	// 	http.StripPrefix("/files/", http.FileServer(http.Dir(FILEPATH))),
+	// 	http.StripPrefix("/files/", http.FileServer(http.Dir(constant_define.SHARE_FILES_PATH))),
 	// )
 }
