@@ -73,7 +73,7 @@ func main() {
 	}
 	log.Println("Connected!")
 
-	compressionMiddleware := middleware.NewCompressionMiddleware(nil)
+	compressionMiddleware := middleware.NewTimeoutMiddleware(nil)
 	server := http.Server{
 		// Addr: ":8080",
 		Addr:    "localhost:8080",
