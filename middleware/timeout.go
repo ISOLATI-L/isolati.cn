@@ -15,7 +15,9 @@ func (tm *TimeoutMiddleware) ServeHTTP(
 	r *http.Request,
 ) {
 	ctx := r.Context()
-	ctx, _ = context.WithTimeout(ctx, 5*time.Second)
+	var cancel context.CancelFunc
+	ctx, cancel = context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
 	r = r.Clone(ctx)
 	ch := make(chan struct{})
 	go func() {
@@ -29,7 +31,6 @@ func (tm *TimeoutMiddleware) ServeHTTP(
 	case <-ctx.Done():
 		w.WriteHeader(http.StatusRequestTimeout)
 	}
-	ctx.Done()
 }
 
 func NewTimeoutMiddleware(next http.Handler) TimeoutMiddleware {
