@@ -74,15 +74,7 @@ func handleFiles(w http.ResponseWriter, r *http.Request) {
 					Name:  fi.Name(),
 					IsDir: fi.IsDir(),
 				})
-			//filesList[r.URL.Path+"/"][fi.Name()] = fi.IsDir()
 		}
-		// if pusher, ok := w.(http.Pusher); ok {
-		// 	pusher.Push("/css/files.css", &http.PushOptions{
-		// 		Header: http.Header{
-		// 			"Content-Type": []string{"text/css"},
-		// 		},
-		// 	})
-		// }
 		filesTemplate.ExecuteTemplate(w, "layout", layoutMsg{
 			PageName: "files",
 			ContainerData: sliderContainerData{
@@ -115,8 +107,4 @@ func registerFilesRoutes() {
 	}
 	http.HandleFunc("/files", handleFiles)
 	http.HandleFunc("/files/", handleFiles)
-	// http.Handle(
-	// 	"/files/",
-	// 	http.StripPrefix("/files/", http.FileServer(http.Dir(constant_define.SHARE_FILES_PATH))),
-	// )
 }

@@ -30,11 +30,9 @@ func handlerInit() {
 func handleToHome(w http.ResponseWriter, r *http.Request) {
 	matches := pattern.FindStringSubmatch(r.URL.Path)
 	if len(matches) > 0 {
-		//fmt.Println("handleToHome", r.URL.Path)
-		//fmt.Println("handleToHome", matches)
 		w.WriteHeader(http.StatusNotFound)
 	} else {
-		//http.Redirect(w, r, "/home", http.StatusMovedPermanently)
+		// http.Redirect(w, r, "/home", http.StatusMovedPermanently)
 		http.Redirect(w, r, "/home", http.StatusFound)
 	}
 }
