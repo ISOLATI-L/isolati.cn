@@ -19,6 +19,14 @@ type Video struct {
 	Vtime    string
 }
 
+type VideoList struct {
+	Videos    []Video
+	Page      int64
+	TotalPage int64
+}
+
+const MAX_PER_PAGE = 10
+
 var videosTemplate = template.New("videos")
 var videoTemplate = template.New("video")
 
@@ -28,41 +36,47 @@ var numberPattern *regexp.Regexp
 func handleVideos(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/videos" ||
 		r.URL.Path == "/videos/" {
-		pageMatches := numberPattern.FindStringSubmatch(
-			r.URL.Query().Get("page"))
 		var page int64
 		var err error
-		if len(pageMatches) > 0 {
-			page, err = strconv.ParseInt(pageMatches[1], 10, 64)
-			if err != nil {
-				log.Println(err.Error())
-				page = 1
-			}
-		} else {
+		pageStr := r.URL.Query().Get("page")
+		if pageStr == "" {
 			page = 1
+		} else {
+			pageMatches := numberPattern.FindStringSubmatch(pageStr)
+			if len(pageMatches) > 0 {
+				page, err = strconv.ParseInt(pageMatches[1], 10, 64)
+				if err != nil {
+					log.Println(err.Error())
+					page = 1
+				}
+			} else {
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
 		}
 		// log.Println(page)
-		row := constant_define.DB.QueryRow(`SELECT COUNT(*) FROM videos;`)
-		var nPage int64
+		row := constant_define.DB.QueryRow(`SELECT COUNT(Vid) FROM videos;`)
+		var totalPage int64
 		err = row.Scan(
-			&nPage,
+			&totalPage,
 		)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Println(err.Error())
 			return
 		}
-		nPage = (nPage + 9) / 10
-		// log.Println(nPage)
-		if page < 1 || page > nPage {
+		totalPage = (totalPage + MAX_PER_PAGE - 1) / MAX_PER_PAGE
+		// log.Println(totalPage)
+		if page < 1 || page > totalPage {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 
 		query := fmt.Sprintf(
 			`SELECT Vid, Vtitle, Vcover, Vtime FROM videos
-			ORDER BY Vid DESC LIMIT %v, 10;`,
-			(page-1)*10,
+			ORDER BY Vid DESC LIMIT %d, %d;`,
+			(page-1)*MAX_PER_PAGE,
+			MAX_PER_PAGE,
 		)
 		var rows *sql.Rows
 		rows, err = constant_define.DB.Query(query)
@@ -73,7 +87,11 @@ func handleVideos(w http.ResponseWriter, r *http.Request) {
 		}
 		defer rows.Close()
 
-		var videos []Video
+		videos := VideoList{
+			Videos:    []Video{},
+			Page:      page,
+			TotalPage: totalPage,
+		}
 		var video Video
 		for rows.Next() {
 			video = Video{}
@@ -88,7 +106,7 @@ func handleVideos(w http.ResponseWriter, r *http.Request) {
 				log.Println(err.Error())
 				return
 			}
-			videos = append(videos, video)
+			videos.Videos = append(videos.Videos, video)
 			// log.Println(video)
 		}
 		// log.Println("Done!")
