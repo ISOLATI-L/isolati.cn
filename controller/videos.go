@@ -2,11 +2,13 @@ package controller
 
 import (
 	"WEB_ISOLATI/constant_define"
+	"database/sql"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
 )
 
 type Video struct {
@@ -21,12 +23,49 @@ var videosTemplate = template.New("videos")
 var videoTemplate = template.New("video")
 
 var videosPattern *regexp.Regexp
+var numberPattern *regexp.Regexp
 
 func handleVideos(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/videos" ||
 		r.URL.Path == "/videos/" {
-		rows, err := constant_define.DB.Query(
-			"SELECT Vid, Vtitle, Vcontent, Vcover, Vtime FROM videos")
+		pageMatches := numberPattern.FindStringSubmatch(
+			r.URL.Query().Get("page"))
+		var page int64
+		var err error
+		if len(pageMatches) > 0 {
+			page, err = strconv.ParseInt(pageMatches[1], 10, 64)
+			if err != nil {
+				log.Println(err.Error())
+				page = 1
+			}
+		} else {
+			page = 1
+		}
+		// log.Println(page)
+		row := constant_define.DB.QueryRow(`SELECT COUNT(*) FROM videos;`)
+		var nPage int64
+		err = row.Scan(
+			&nPage,
+		)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Println(err.Error())
+			return
+		}
+		nPage = (nPage + 9) / 10
+		// log.Println(nPage)
+		if page < 1 || page > nPage {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		query := fmt.Sprintf(
+			`SELECT Vid, Vtitle, Vcover, Vtime FROM videos
+			ORDER BY Vid DESC LIMIT %v, 10;`,
+			(page-1)*10,
+		)
+		var rows *sql.Rows
+		rows, err = constant_define.DB.Query(query)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Println(err.Error())
@@ -41,7 +80,6 @@ func handleVideos(w http.ResponseWriter, r *http.Request) {
 			err = rows.Scan(
 				&video.Vid,
 				&video.Vtitle,
-				&video.Vcontent,
 				&video.Vcover,
 				&video.Vtime,
 			)
@@ -50,7 +88,7 @@ func handleVideos(w http.ResponseWriter, r *http.Request) {
 				log.Println(err.Error())
 				return
 			}
-			videos = append([]Video{video}, videos...)
+			videos = append(videos, video)
 			// log.Println(video)
 		}
 		// log.Println("Done!")
@@ -105,6 +143,10 @@ func handleVideos(w http.ResponseWriter, r *http.Request) {
 func registerVideosRoutes() {
 	var err error
 	videosPattern, err = regexp.Compile(`/videos/(\d+)$`)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	numberPattern, err = regexp.Compile(`^(\d+)$`)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
