@@ -1,14 +1,15 @@
 package main
 
 import (
-	"WEB_ISOLATI/constant_define"
-	"WEB_ISOLATI/controller"
-	"WEB_ISOLATI/middleware"
 	"context"
 	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
+
+	"isolati.cn/constant_define"
+	"isolati.cn/controller"
+	"isolati.cn/middleware"
 
 	"github.com/Unknwon/goconfig"
 	_ "github.com/go-sql-driver/mysql"

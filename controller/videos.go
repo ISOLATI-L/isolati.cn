@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"WEB_ISOLATI/constant_define"
 	"database/sql"
 	"fmt"
 	"html/template"
@@ -9,6 +8,8 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+
+	"isolati.cn/constant_define"
 )
 
 type Video struct {

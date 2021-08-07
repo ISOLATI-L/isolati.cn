@@ -1,9 +1,10 @@
 package controller
 
 import (
-	"WEB_ISOLATI/constant_define"
 	"html/template"
 	"net/http"
+
+	"isolati.cn/constant_define"
 )
 
 var homeTemplate = template.New("home")

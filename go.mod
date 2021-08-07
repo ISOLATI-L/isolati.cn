@@ -1,4 +1,4 @@
-module WEB_ISOLATI
+module isolati.cn
 
 go 1.15
 

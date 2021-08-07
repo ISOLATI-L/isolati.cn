@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"WEB_ISOLATI/constant_define"
 	"html/template"
 	"io/ioutil"
 	"log"
@@ -10,6 +9,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"isolati.cn/constant_define"
 )
 
 var filesTemplate = template.New("about")
