@@ -81,10 +81,6 @@ func main() {
 		Handler: &compressionMiddleware,
 	}
 	http.Handle(
-		"/bootstrap/",
-		http.FileServer(http.Dir(constant_define.ROOT_PATH+"wwwroot")),
-	)
-	http.Handle(
 		"/css/",
 		http.FileServer(http.Dir(constant_define.ROOT_PATH+"wwwroot")),
 	)
