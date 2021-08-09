@@ -27,7 +27,7 @@ func handlerInit() {
 	}
 }
 
-func handleToHome(w http.ResponseWriter, r *http.Request) {
+func redirectToHome(w http.ResponseWriter, r *http.Request) {
 	matches := pattern.FindStringSubmatch(r.URL.Path)
 	if len(matches) > 0 {
 		w.WriteHeader(http.StatusNotFound)
@@ -38,7 +38,7 @@ func handleToHome(w http.ResponseWriter, r *http.Request) {
 }
 
 func RegisterRoutes() {
-	http.HandleFunc("/", handleToHome)
+	http.HandleFunc("/", redirectToHome)
 	handlerInit()
 	registerHomeRoutes()
 	registerAboutRoutes()

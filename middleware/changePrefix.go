@@ -10,8 +10,7 @@ import (
 type ChangePrefixMiddleware struct {
 	Next                http.Handler
 	changePrefixPattern *regexp.Regexp
-	domain              string
-	newPrefix           string
+	newURL              string
 }
 
 func (cpm *ChangePrefixMiddleware) ServeHTTP(
@@ -21,7 +20,7 @@ func (cpm *ChangePrefixMiddleware) ServeHTTP(
 	host := r.Host
 	matches := cpm.changePrefixPattern.FindStringSubmatch(host)
 	if len(matches) > 0 {
-		newURL := fmt.Sprintf("https://%s%s%s", cpm.newPrefix, cpm.domain, r.URL)
+		newURL := fmt.Sprintf("%s%s", cpm.newURL, r.URL.Path)
 		http.Redirect(w, r, newURL, http.StatusFound)
 	} else {
 		cpm.Next.ServeHTTP(w, r)
@@ -42,10 +41,10 @@ func NewChangePrefixMiddleware(
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
+	newURL := fmt.Sprintf("https://%s%s", newPrefix, domain)
 	return ChangePrefixMiddleware{
 		Next:                next,
 		changePrefixPattern: changePrefixPattern,
-		domain:              domain,
-		newPrefix:           newPrefix,
+		newURL:              newURL,
 	}
 }
