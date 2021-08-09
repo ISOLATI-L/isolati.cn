@@ -41,7 +41,7 @@ func NewChangePrefixMiddleware(
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	newURL := fmt.Sprintf("%s%s", newPrefix, domain)
+	newURL := fmt.Sprintf("https://%s%s", newPrefix, domain)
 	return ChangePrefixMiddleware{
 		Next:                next,
 		changePrefixPattern: changePrefixPattern,

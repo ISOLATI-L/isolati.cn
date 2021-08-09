@@ -88,7 +88,7 @@ func main() {
 		Addr:    "localhost:8080",
 		Handler: &timeoutMiddleware,
 	}
-	
+
 	http.Handle(
 		"/css/",
 		http.FileServer(http.Dir(constant_define.ROOT_PATH+"wwwroot")),
