@@ -16,7 +16,7 @@ func (tm *TimeoutMiddleware) ServeHTTP(
 ) {
 	ctx := r.Context()
 	var cancel context.CancelFunc
-	ctx, cancel = context.WithTimeout(ctx, 20*time.Second)
+	ctx, cancel = context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 	r = r.Clone(ctx)
 	ch := make(chan struct{})
