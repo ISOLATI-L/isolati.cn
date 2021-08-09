@@ -67,6 +67,9 @@ func handleVideos(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		totalPage = (totalPage + MAX_PER_PAGE - 1) / MAX_PER_PAGE
+		if totalPage == 0 {
+			totalPage = 1
+		}
 		// log.Println(totalPage)
 		if page < 1 || page > totalPage {
 			w.WriteHeader(http.StatusNotFound)
