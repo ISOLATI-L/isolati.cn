@@ -74,11 +74,19 @@ func main() {
 	}
 	log.Println("Connected!")
 
-	compressionMiddleware := middleware.NewTimeoutMiddleware(nil)
+	changePrefixMiddleware := middleware.NewChangePrefixMiddleware(
+		nil,
+		"isolati.cn",
+		"www.",
+		"",
+	)
+	timeoutMiddleware := middleware.NewTimeoutMiddleware(
+		&changePrefixMiddleware,
+	)
 	server := http.Server{
 		// Addr: ":8080",
 		Addr:    "localhost:8080",
-		Handler: &compressionMiddleware,
+		Handler: &timeoutMiddleware,
 	}
 	http.Handle(
 		"/css/",

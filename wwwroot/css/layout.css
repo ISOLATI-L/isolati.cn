@@ -175,13 +175,13 @@ body{
     color: #FFFFFF;
 }
 
-.footer_content a{
+.footer_content .footer_link{
     color: #FFFFFF;
     text-decoration: none;
     transition: color 0.25s;
 }
 
-.footer_content a:hover{
+.footer_content .footer_link:hover{
     color: #BFBFBF;
     transition: color 0.25s;
 }
