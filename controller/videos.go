@@ -21,9 +21,8 @@ type Video struct {
 }
 
 type VideoList struct {
-	Videos    []Video
-	Page      int64
-	TotalPage int64
+	Videos []Video
+	Page   int64
 }
 
 const MAX_PER_PAGE = 10
@@ -92,9 +91,8 @@ func handleVideos(w http.ResponseWriter, r *http.Request) {
 		defer rows.Close()
 
 		videos := VideoList{
-			Videos:    []Video{},
-			Page:      page,
-			TotalPage: totalPage,
+			Videos: []Video{},
+			Page:   page,
 		}
 		var video Video
 		for rows.Next() {

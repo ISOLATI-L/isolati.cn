@@ -8,10 +8,6 @@
     background-color: #101010;
 }
 
-.slider font{
-    color: #FFFFFF;
-}
-
 .content{
     width: var(--content-width);
     min-height: calc(100vh - 130px);

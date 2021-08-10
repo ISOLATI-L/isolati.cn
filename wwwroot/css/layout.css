@@ -25,6 +25,10 @@ body{
     height: auto;
 }
 
+font{
+    color: #FFFFFF;
+}
+
 .preload{
     -webkit-transition: none !important;
     -moz-transition: none !important;
@@ -174,10 +178,6 @@ body{
     margin: 0px auto;
     padding: 15px 0px;
     line-height: 30px;
-}
-
-.footer_content font{
-    color: #FFFFFF;
 }
 
 .footer_content .footer_link{
