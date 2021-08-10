@@ -1,5 +1,6 @@
 :root{
     --loading-grey: #181818;
+    --li-grey: #141414;
 }
 
 .videoFrame{
@@ -19,7 +20,7 @@
     height: 180px;
     list-style: none;
     margin: 5px 0px;
-    background-color: #141414;
+    background-color: var(--li-grey);
 }
 
 .videoList li a{
