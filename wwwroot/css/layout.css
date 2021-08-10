@@ -3,6 +3,11 @@
     padding: 0px;
 }
 
+:root{
+    --container-width: 1260px;
+    font-family: Helvetica;
+}
+
 html{
     width: 100%;
     height: auto;
@@ -11,7 +16,7 @@ html{
 
 @media screen and (max-width: 1260px){
     html{
-        width: 1260px;
+        width: var(--container-width);
     }
 }
 
@@ -35,7 +40,7 @@ body{
 }
 
 .header_content{
-    width: 1260px;
+    width: var(--container-width);
     height: 60px;
     margin: 0px auto;
 }
@@ -146,7 +151,7 @@ body{
 }
 
 .container{
-    width: 1260px;
+    width: var(--container-width);
     height: auto;
     margin: 0px auto;
     padding: 5px 0px;
@@ -164,7 +169,7 @@ body{
 }
 
 .footer_content{
-    width: 1260px;
+    width: var(--container-width);
     height: 30px;
     margin: 0px auto;
     padding: 15px 0px;

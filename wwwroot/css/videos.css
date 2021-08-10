@@ -1,3 +1,7 @@
+:root{
+    --loading-grey: #181818;
+}
+
 .videoFrame{
     width: 100%;
     height: auto;
@@ -34,29 +38,94 @@
     height: 180px;
 }
 
+.videoList li a .image img{
+    width: 240px;
+    height: 180px;
+    object-fit: cover;
+}
+
 .videoList li a .text{
-    width: calc(100% - 260px);
+    --text-width: calc(100% - 260px);
+    width: var(--text-width);
     height: 180px;
     margin: 0px 10px;
 }
 
-.videoList li a div .title{
+.videoList li a .text .title{
     width: 100%;
     height: 120px;
     line-height: 120px;
+    display: flex;
+    align-items: center;
 }
 
-.videoList li a div .title .titleText{
+.videoList li a .text .title .titleText{
     width: 100%;
-    height: auto;
-    display: inline-block;
+    min-height: 60px;
+    height: 60px;
     line-height: 60px;
     font-size: 24px;
 }
 
-.videoList li a div .time{
+.videoList li a .text .time{
     width: 100%;
     height: 60px;
     line-height: 60px;
+    display: flex;
+    align-items: center;
+}
+
+.videoList li a .text .time .timeText{
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
     font-size: 12px;
+}
+
+.loading a .image,
+.loading a .text .title .titleText,
+.loading a .text .time .timeText{
+    background-color: var(--loading-grey) !important;
+    background: linear-gradient(
+        100deg,
+        rgba(255, 255, 255, 0) 40%,
+        rgba(255, 255, 255, 0.5) 50%,
+        rgba(255, 255, 255, 0) 60%
+    ) var(--loading-grey);
+    background-size: 1680px 180px;
+}
+
+.loading a .image{
+    background-position-x: -1262px;
+    background-position-y: 0px;
+    animation: 1.5s loading-image
+        ease-in-out infinite;
+}
+
+@keyframes loading-image{
+    to{
+        background-position-x: 418px;
+    }
+}
+
+.loading a .text .title .titleText,
+.loading a .text .time .timeText{
+    border-radius: 4px;
+    background-position-x: -1512px;
+    animation: 1.5s loading-text
+        ease-in-out infinite;
+}
+
+@keyframes loading-text{
+    to{
+        background-position-x: 168px;
+    }
+}
+
+.loading a .text .title .titleText{
+    background-position-y: -30px;
+}
+
+.loading a .text .time .timeText{
+    background-position-y: -135px;
 }

@@ -6,22 +6,52 @@
 
 <div class="videoFrame">
     <ul class="videoList">
-    {{ range .Videos }}
-    <li>
-        <a href="/videos/{{ .Vid }}">
-            <img class="image"
-                src="{{.Vcover}}">
-            </img>
-            <div class="text">
-                <div class="title">
-                    <p class="titleText">{{ .Vtitle }}</p>
+        {{ range .Videos }}
+        <li>
+            <a href="/videos/{{ .Vid }}">
+                <div class="image">
+                    <img src="{{.Vcover}}"></img>
                 </div>
-                <p class="time">{{ .Vtime }}</p>
-            </div>
-        </a>
-    </li>
-    {{ end }}
+                <div class="text">
+                    <div class="title">
+                        <p class="titleText">{{ .Vtitle }}</p>
+                    </div>
+                    <div class="time">
+                        <p class="timeText">{{ .Vtime }}</p>
+                    </div>
+                </div>
+            </a>
+        </li>
+        {{ end }}
+
+        <li class="loading">
+            <a href="">
+                <div class="image">
+                </div>
+                <div class="text">
+                    <div class="title">
+                        <p class="titleText"></p>
+                    </div>
+                    <div class="time">
+                        <p class="timeText"></p>
+                    </div>
+                </div>
+            </a>
+        </li>
+        <li class="loading">
+            <a href="">
+                <div class="image">
+                </div>
+                <div class="text">
+                    <div class="title">
+                        <p class="titleText"></p>
+                    </div>
+                    <div class="time">
+                        <p class="timeText"></p>
+                    </div>
+                </div>
+            </a>
+        </li>
     </ul>
 </div>
-
 {{ end }}
