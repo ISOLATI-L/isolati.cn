@@ -80,12 +80,12 @@ font{
     border-bottom: 2px solid #FFFFFF;
     box-sizing: border-box;
     transform: scale3d(0, 1, 1);
-    transition: transform 0.125s;
+    transition: transform 0.125s ease-in-out;
 }
 
 .navHover:hover::after{
     transform: scale3d(1, 1, 1);
-    transition: transform 0.25s;
+    transition: transform 0.25s ease-in-out;
 }
 
 .search_box{
@@ -122,7 +122,7 @@ font{
     float: left;
     width: 0px;
     line-height: 24px;
-    transition: 0.25s;
+    transition: 0.25s ease-in-out;
 }
 
 .search_btn{
@@ -134,7 +134,7 @@ font{
     box-sizing: border-box;
     background-color: #BFBFBF;
     float: right;
-    transition: 0.25s;
+    transition: 0.25s ease-in-out;
 }
 
 .search_btn svg{
@@ -183,10 +183,10 @@ font{
 .footer_content .footer_link{
     color: #FFFFFF;
     text-decoration: none;
-    transition: color 0.25s;
+    transition: color 0.25s ease-in-out;
 }
 
 .footer_content .footer_link:hover{
     color: #BFBFBF;
-    transition: color 0.25s;
+    transition: color 0.25s ease-in-out;
 }
