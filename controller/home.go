@@ -15,7 +15,7 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 		ContainerData: sliderContainerData{
 			LeftSliderData:  constant_define.LEFT_SLIDER,
 			RightSliderData: constant_define.RIGHT_SLIDER,
-			ContentData:     "阿巴阿巴",
+			ContentData:     nil,
 		},
 	})
 }

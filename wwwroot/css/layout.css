@@ -133,7 +133,7 @@ body{
     transition: 0.25s;
 }
 
-.search_btn img{
+.search_btn svg{
     display: block;
     width: 16px;
     height: 16px;
