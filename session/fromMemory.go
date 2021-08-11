@@ -1,7 +1,6 @@
 package session
 
 import (
-	"log"
 	"sync"
 	"time"
 )
@@ -83,7 +82,7 @@ func (fm *FromMemory) InitSession(sid string, maxAge int64) (Session, error) {
 	}
 	newSession.UpdateLastAccessedTime()
 	fm.sessions[sid] = newSession
-	log.Println(newSession)
+	// log.Println(newSession)
 	return newSession, nil
 }
 
@@ -103,7 +102,7 @@ func (fm *FromMemory) GCSession() bool {
 	if len(sessions) == 0 {
 		return true
 	}
-	log.Println("xxxxxxxxxxxxxx--gc-session", sessions)
+	// log.Println("xxxxxxxxxxxxxx--gc-session", sessions)
 	now := time.Now().Unix()
 	for key, value := range sessions {
 		time, err := value.GetLastAccessedTime()
@@ -112,7 +111,7 @@ func (fm *FromMemory) GCSession() bool {
 		}
 		t := time.Unix() + int64(value.GetMaxAge())
 		if t < now {
-			log.Println("timeout------->", value)
+			// log.Println("timeout------->", value)
 			delete(fm.sessions, key)
 		}
 	}

@@ -222,7 +222,7 @@ func (fd *FromDatabase) InitSession(sid string, maxAge int64) (Session, error) {
 	if maxAge != 0 && maxAge != DEFAULT_TIME {
 		newSession.SetMaxAge(maxAge)
 	}
-	log.Println(newSession)
+	// log.Println(newSession)
 	return newSession, nil
 }
 
