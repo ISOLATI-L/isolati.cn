@@ -2,3 +2,4 @@ SQL.config.ini
 test.http
 wwwroot/img/videos
 **/*temp*
+*.sql
