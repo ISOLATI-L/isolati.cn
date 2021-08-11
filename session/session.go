@@ -1,7 +1,6 @@
 package session
 
 import (
-	"database/sql"
 	"time"
 )
 
@@ -16,12 +15,4 @@ type Session interface {
 	GetMaxAge() int64
 	SetMaxAge(age int64)
 	GetId() string
-}
-
-func New(sid string, db *sql.DB) Session {
-	if db != nil {
-		return newSessionFromDatabase(sid, db)
-	} else {
-		return newSessionFromMemory(sid)
-	}
 }

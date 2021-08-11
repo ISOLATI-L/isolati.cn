@@ -31,6 +31,11 @@ var (
 var SQL_Config *goconfig.ConfigFile
 
 func main() {
+	// b := make([]byte, 32)
+	// for i := 0; i < 100; i++ {
+	// 	io.ReadFull(rand.Reader, b)
+	// 	log.Println(base64.URLEncoding.EncodeToString(b))
+	// }
 	var err error
 	SQL_Config, err = goconfig.LoadConfigFile(
 		constant_define.ROOT_PATH + "SQL.config.ini")

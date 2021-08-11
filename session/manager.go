@@ -5,76 +5,25 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"sync"
 	"time"
 )
 
-// type Provider interface {
-// 	InitSession(sid string, maxAge int64, db *sql.DB) (Session, error)
-// 	SetSession(session Session) error
-// 	GetSession(key string) Session
-// 	DestroySession(sid string) error
-// 	GCSession()
-// }
-
-type Provider struct {
-	lock     *sync.Mutex
-	sessions map[string]Session
+type Provider interface {
+	InitSession(sid string, maxAge int64) (Session, error)
+	SetSession(session Session) error
+	GetSession(key string) Session
+	DestroySession(sid string) error
+	GCSession()
 }
 
-func newProvider() Provider {
-	return Provider{
-		lock:     new(sync.Mutex),
-		sessions: make(map[string]Session),
-	}
-}
-
-func (fm Provider) InitSession(sid string, maxAge int64, db *sql.DB) (Session, error) {
-	fm.lock.Lock()
-	defer fm.lock.Unlock()
-	newSession := New(sid, db)
-	if maxAge != 0 {
-		newSession.SetMaxAge(maxAge)
-	}
-	newSession.UpdateLastAccessedTime()
-	fm.sessions[sid] = newSession
-	log.Println(newSession)
-	return newSession, nil
-}
-
-func (fm Provider) SetSession(session Session) error {
-	fm.sessions[session.GetId()] = session
-	return nil
-}
-
-func (fm Provider) GetSession(key string) Session {
-	return fm.sessions[key]
-}
-
-func (fm Provider) DestroySession(sid string) error {
-	if fm.sessions[sid] != nil {
-		delete(fm.sessions, sid)
-	}
-	return nil
-}
-
-func (fm Provider) GCSession() {
-	sessions := fm.sessions
-	if len(sessions) == 0 {
-		return
-	}
-	log.Println("xxxxxxxxxxxxxx--gc-session", sessions)
-	now := time.Now().Unix()
-	for key, value := range sessions {
-		t := (value.GetLastAccessedTime().Unix()) +
-			int64(value.GetMaxAge())
-		if t < now {
-			log.Println("timeout------->", value)
-			delete(fm.sessions, key)
-		}
+func newProvider(db *sql.DB) Provider {
+	if db != nil {                                                                                                                                      
+		return newFromDatabase(db)
+	} else {
+		return newFromMemory()
 	}
 }
 
@@ -90,7 +39,7 @@ func NewSessionManager(db *sql.DB) *SessionManager {
 	sessionManager := &SessionManager{
 		cookieName: "isolati",
 		db:         db,
-		storage:    newProvider(),
+		storage:    newProvider(db),
 		maxAge:     DEFAULT_TIME,
 	}
 	go sessionManager.GC()
@@ -109,7 +58,7 @@ func (m *SessionManager) BeginSession(w http.ResponseWriter, r *http.Request) Se
 	cookie, err := r.Cookie(m.cookieName)
 	if err != nil || cookie.Value == "" {
 		sid := m.randomId()
-		session, _ := m.storage.InitSession(sid, m.maxAge, m.db)
+		session, _ := m.storage.InitSession(sid, m.maxAge)
 		maxAge := m.maxAge
 		if maxAge == 0 {
 			maxAge = session.GetMaxAge()
@@ -127,7 +76,7 @@ func (m *SessionManager) BeginSession(w http.ResponseWriter, r *http.Request) Se
 		sid, _ := url.QueryUnescape(cookie.Value)
 		session := m.storage.GetSession(sid)
 		if session == nil {
-			newSession, _ := m.storage.InitSession(sid, m.maxAge, m.db)
+			newSession, _ := m.storage.InitSession(sid, m.maxAge)
 
 			maxAge := m.maxAge
 
