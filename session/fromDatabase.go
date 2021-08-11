@@ -8,19 +8,15 @@ import (
 	"time"
 )
 
-const TABLE string = "sessions"
-
 type SessionFromDatabase struct {
-	sid   string
-	lock  sync.Mutex
-	db    *sql.DB
-	table string
+	sid  string
+	lock sync.Mutex
+	db   *sql.DB
 }
 
-func newSessionFromDatabase(db *sql.DB, table string, sid string) *SessionFromDatabase {
+func newSessionFromDatabase(db *sql.DB, sid string) *SessionFromDatabase {
 	result, err := db.Exec(
-		`INSERT INTO ? (Sid, Sdata) VALUES (?, JSON_OBJECT());`,
-		table,
+		`INSERT INTO sessions (Sid, Sdata) VALUES (?, JSON_OBJECT());`,
 		sid,
 	)
 	if err != nil {
@@ -37,9 +33,8 @@ func newSessionFromDatabase(db *sql.DB, table string, sid string) *SessionFromDa
 		return nil
 	}
 	return &SessionFromDatabase{
-		sid:   sid,
-		db:    db,
-		table: table,
+		sid: sid,
+		db:  db,
 	}
 }
 
@@ -48,9 +43,8 @@ func (si *SessionFromDatabase) Set(key interface{}, value interface{}) {
 	si.lock.Lock()
 	defer si.lock.Unlock()
 	result, err := si.db.Exec(
-		`UPDATE ? SET Sdata = JSON_SET(Sdata, ?, ?)
+		`UPDATE sessions SET Sdata = JSON_SET(Sdata, ?, ?)
 		WHERE Sid = ?;`,
-		si.table,
 		key,
 		value,
 		si.sid,
@@ -73,10 +67,9 @@ func (si *SessionFromDatabase) Set(key interface{}, value interface{}) {
 func (si *SessionFromDatabase) Get(key interface{}) interface{} {
 	key = fmt.Sprintf("$.%s", key)
 	row := si.db.QueryRow(
-		`SELECT JSON_EXTRACT(Sdata, ?) FROM ?
+		`SELECT JSON_EXTRACT(Sdata, ?) FROM sessions
 		WHERE Sid = ?;`,
 		key,
-		si.table,
 		si.sid,
 	)
 	var result interface{}
@@ -91,9 +84,8 @@ func (si *SessionFromDatabase) Get(key interface{}) interface{} {
 func (si *SessionFromDatabase) Remove(key interface{}) error {
 	key = fmt.Sprintf("$.%s", key)
 	result, err := si.db.Exec(
-		`UPDATE ? SET Sdata = JSON_REMOVE(Sdata, ?)
+		`UPDATE sessions SET Sdata = JSON_REMOVE(Sdata, ?)
 		WHERE Sid = ?;`,
-		si.table,
 		key,
 		si.sid,
 	)
@@ -114,9 +106,8 @@ func (si *SessionFromDatabase) Remove(key interface{}) error {
 
 func (si *SessionFromDatabase) GetLastAccessedTime() (time.Time, error) {
 	row := si.db.QueryRow(
-		`SELECT SlastAccessedTime FROM ?
+		`SELECT SlastAccessedTime FROM sessions
 		WHERE Sid = ?;`,
-		si.table,
 		si.sid,
 	)
 	var timeStr string
@@ -132,9 +123,8 @@ func (si *SessionFromDatabase) GetLastAccessedTime() (time.Time, error) {
 
 func (si *SessionFromDatabase) UpdateLastAccessedTime() {
 	result, err := si.db.Exec(
-		`UPDATE ? SET SlastAccessedTime = CURRENT_TIMESTAMP
+		`UPDATE sessions SET SlastAccessedTime = CURRENT_TIMESTAMP
 		WHERE Sid = ?;`,
-		si.table,
 		si.sid,
 	)
 	if err != nil {
@@ -153,9 +143,8 @@ func (si *SessionFromDatabase) UpdateLastAccessedTime() {
 
 func (si *SessionFromDatabase) GetMaxAge() int64 {
 	row := si.db.QueryRow(
-		`SELECT SmaxAge FROM ?
+		`SELECT SmaxAge FROM sessions
 		WHERE Sid = ?;`,
-		si.table,
 		si.sid,
 	)
 	var maxAge int64
@@ -171,9 +160,8 @@ func (si *SessionFromDatabase) GetMaxAge() int64 {
 
 func (si *SessionFromDatabase) SetMaxAge(age int64) {
 	result, err := si.db.Exec(
-		`UPDATE ? SET SmaxAge = ?
+		`UPDATE sessions SET SmaxAge = ?
 		WHERE Sid = ?;`,
-		si.table,
 		age,
 		si.sid,
 	)
@@ -197,9 +185,8 @@ func (si *SessionFromDatabase) GetId() string {
 
 func (si *SessionFromDatabase) Destroy() bool {
 	result, err := si.db.Exec(
-		`DELETE FROM ?
+		`DELETE FROM sessions
 		WHERE Sid = ?;`,
-		si.table,
 		si.sid,
 	)
 	if err != nil {
@@ -231,7 +218,7 @@ func newFromDatabase(db *sql.DB) *FromDatabase {
 func (fd *FromDatabase) InitSession(sid string, maxAge int64) (Session, error) {
 	fd.lock.Lock()
 	defer fd.lock.Unlock()
-	newSession := newSessionFromDatabase(fd.db, TABLE, sid)
+	newSession := newSessionFromDatabase(fd.db, sid)
 	if maxAge != 0 && maxAge != DEFAULT_TIME {
 		newSession.SetMaxAge(maxAge)
 	}
@@ -241,9 +228,8 @@ func (fd *FromDatabase) InitSession(sid string, maxAge int64) (Session, error) {
 
 func (fd *FromDatabase) GetSession(sid string) Session {
 	return &SessionFromDatabase{
-		sid:   sid,
-		db:    fd.db,
-		table: TABLE,
+		sid: sid,
+		db:  fd.db,
 	}
 }
 

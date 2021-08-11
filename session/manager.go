@@ -151,14 +151,19 @@ func (m *SessionManager) Update(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, cookie)
 }
 
-func (m *SessionManager) randomId() string {
+func RandomId() string {
 	b := make([]byte, 32)
+	if _, err := io.ReadFull(rand.Reader, b); err != nil {
+		return ""
+	}
+	randId := base64.URLEncoding.EncodeToString(b)
+	return randId
+}
+
+func (m *SessionManager) randomId() string {
 	var randId string
 	for {
-		if _, err := io.ReadFull(rand.Reader, b); err != nil {
-			return ""
-		}
-		randId = base64.URLEncoding.EncodeToString(b)
+		randId = RandomId()
 		if !m.MemoryIsExists(randId) {
 			break
 		}
