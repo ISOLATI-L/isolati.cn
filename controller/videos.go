@@ -10,11 +10,11 @@ import (
 	"time"
 
 	"isolati.cn/constant_define"
-	"isolati.cn/sqlStruct"
+	"isolati.cn/database"
 )
 
 type VideoList struct {
-	Videos []sqlStruct.Video
+	Videos []database.Video
 	Page   int64
 }
 
@@ -83,12 +83,12 @@ func handleVideos(w http.ResponseWriter, r *http.Request) {
 		defer rows.Close()
 
 		videos := VideoList{
-			Videos: []sqlStruct.Video{},
+			Videos: []database.Video{},
 			Page:   page,
 		}
-		var video sqlStruct.Video
+		var video database.Video
 		for rows.Next() {
-			video = sqlStruct.Video{}
+			video = database.Video{}
 			var timeStr string
 			err = rows.Scan(
 				&video.Vid,
@@ -128,7 +128,7 @@ func handleVideos(w http.ResponseWriter, r *http.Request) {
 				WHERE Vid=?;`,
 				matches[1],
 			)
-			video := sqlStruct.Video{}
+			video := database.Video{}
 			var err error
 			row.Scan(
 				&video.Vid,

@@ -1,4 +1,4 @@
-package sqlStruct
+package database
 
 type User struct {
 	Uid       uint64

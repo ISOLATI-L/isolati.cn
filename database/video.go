@@ -1,4 +1,4 @@
-package sqlStruct
+package database
 
 import (
 	"html/template"
