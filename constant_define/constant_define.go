@@ -3,6 +3,8 @@ package constant_define
 import (
 	"database/sql"
 	"html/template"
+
+	"isolati.cn/session"
 )
 
 const ROOT_PATH = "./"
@@ -36,3 +38,5 @@ const RIGHT_SLIDER = template.HTML(`
 `)
 
 var DB *sql.DB
+
+var SessionM *session.SessionManager

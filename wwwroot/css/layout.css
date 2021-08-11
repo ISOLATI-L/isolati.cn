@@ -98,13 +98,13 @@ font{
 }
 
 .search_box:hover .search_txt,
-    .search_box:focus-within .search_txt{
+    .search_txt:focus{
     width: 120px;
     margin-left: 8px;
 }
 
 .search_box:hover .search_btn,
-    .search_box:focus-within .search_btn{
+    .search_txt:focus~.search_btn{
     width: 24px;
     height: 24px;
     border-radius: 12px;

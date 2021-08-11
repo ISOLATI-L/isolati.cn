@@ -10,6 +10,7 @@ import (
 	"isolati.cn/constant_define"
 	"isolati.cn/controller"
 	"isolati.cn/middleware"
+	"isolati.cn/session"
 
 	"github.com/Unknwon/goconfig"
 	_ "github.com/go-sql-driver/mysql"
@@ -73,6 +74,8 @@ func main() {
 		log.Fatalln(err.Error())
 	}
 	log.Println("Connected!")
+
+	constant_define.SessionM = session.NewSessionManager(constant_define.DB)
 
 	changePrefixMiddleware := middleware.NewChangePrefixMiddleware(
 		nil,

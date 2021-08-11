@@ -8,20 +8,14 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"time"
 
 	"isolati.cn/constant_define"
+	"isolati.cn/sqlStruct"
 )
 
-type Video struct {
-	Vid      int
-	Vtitle   string
-	Vcontent template.HTML
-	Vcover   string
-	Vtime    string
-}
-
 type VideoList struct {
-	Videos []Video
+	Videos []sqlStruct.Video
 	Page   int64
 }
 
@@ -91,18 +85,25 @@ func handleVideos(w http.ResponseWriter, r *http.Request) {
 		defer rows.Close()
 
 		videos := VideoList{
-			Videos: []Video{},
+			Videos: []sqlStruct.Video{},
 			Page:   page,
 		}
-		var video Video
+		var video sqlStruct.Video
 		for rows.Next() {
-			video = Video{}
+			video = sqlStruct.Video{}
+			var timeStr string
 			err = rows.Scan(
 				&video.Vid,
 				&video.Vtitle,
 				&video.Vcover,
-				&video.Vtime,
+				&timeStr,
 			)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				log.Println(err.Error())
+				return
+			}
+			video.Vtime, err = time.ParseInLocation("2006-01-02 15:04:05", timeStr, time.Local)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				log.Println(err.Error())
@@ -130,7 +131,7 @@ func handleVideos(w http.ResponseWriter, r *http.Request) {
 				matches[1],
 			)
 			row := constant_define.DB.QueryRow(query)
-			video := Video{}
+			video := sqlStruct.Video{}
 			var err error
 			row.Scan(
 				&video.Vid,
