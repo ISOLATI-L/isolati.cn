@@ -12,21 +12,6 @@ import (
 	"time"
 )
 
-type Provider interface {
-	InitSession(sid string, maxAge uint64) (Session, error)
-	GetSession(sid string) Session
-	DestroySession(sid string) error
-	GCSession() bool
-}
-
-func newProvider(db *sql.DB) Provider {
-	if db != nil {
-		return newFromDatabase(db)
-	} else {
-		return newFromMemory()
-	}
-}
-
 type SessionManager struct {
 	cookieName string
 	db         *sql.DB
