@@ -10,9 +10,10 @@ type Session interface {
 	Set(key interface{}, value interface{})
 	Get(key interface{}) interface{}
 	Remove(key interface{}) error
-	GetLastAccessedTime() time.Time
+	GetLastAccessedTime() (time.Time, error)
 	UpdateLastAccessedTime()
 	GetMaxAge() int64
 	SetMaxAge(age int64)
 	GetId() string
+	Destroy() bool
 }

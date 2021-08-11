@@ -39,8 +39,8 @@ func (si *SessionFromMemory) Remove(key interface{}) error {
 	return nil
 }
 
-func (si *SessionFromMemory) GetLastAccessedTime() time.Time {
-	return si.lastAccessedTime
+func (si *SessionFromMemory) GetLastAccessedTime() (time.Time, error) {
+	return si.lastAccessedTime, nil
 }
 
 func (si *SessionFromMemory) UpdateLastAccessedTime() {
@@ -57,6 +57,10 @@ func (si *SessionFromMemory) SetMaxAge(age int64) {
 
 func (si *SessionFromMemory) GetId() string {
 	return si.sid
+}
+
+func (si *SessionFromMemory) Destroy() bool {
+	return true
 }
 
 type FromMemory struct {
@@ -83,13 +87,8 @@ func (fm *FromMemory) InitSession(sid string, maxAge int64) (Session, error) {
 	return newSession, nil
 }
 
-func (fm *FromMemory) SetSession(session Session) error {
-	fm.sessions[session.GetId()] = session
-	return nil
-}
-
-func (fm *FromMemory) GetSession(key string) Session {
-	return fm.sessions[key]
+func (fm *FromMemory) GetSession(sid string) Session {
+	return fm.sessions[sid]
 }
 
 func (fm *FromMemory) DestroySession(sid string) error {
@@ -99,19 +98,23 @@ func (fm *FromMemory) DestroySession(sid string) error {
 	return nil
 }
 
-func (fm *FromMemory) GCSession() {
+func (fm *FromMemory) GCSession() bool {
 	sessions := fm.sessions
 	if len(sessions) == 0 {
-		return
+		return true
 	}
 	log.Println("xxxxxxxxxxxxxx--gc-session", sessions)
 	now := time.Now().Unix()
 	for key, value := range sessions {
-		t := (value.GetLastAccessedTime().Unix()) +
-			int64(value.GetMaxAge())
+		time, err := value.GetLastAccessedTime()
+		if err != nil {
+			continue
+		}
+		t := time.Unix() + int64(value.GetMaxAge())
 		if t < now {
 			log.Println("timeout------->", value)
 			delete(fm.sessions, key)
 		}
 	}
+	return true
 }

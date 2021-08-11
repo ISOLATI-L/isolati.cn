@@ -2,7 +2,6 @@ package controller
 
 import (
 	"database/sql"
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -69,14 +68,13 @@ func handleVideos(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		query := fmt.Sprintf(
+		var rows *sql.Rows
+		rows, err = constant_define.DB.Query(
 			`SELECT Vid, Vtitle, Vcover, Vtime FROM videos
-			ORDER BY Vid DESC LIMIT %d, %d;`,
+			ORDER BY Vid DESC LIMIT ?, ?;`,
 			(page-1)*MAX_PER_PAGE,
 			MAX_PER_PAGE,
 		)
-		var rows *sql.Rows
-		rows, err = constant_define.DB.Query(query)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Println(err.Error())
@@ -125,12 +123,11 @@ func handleVideos(w http.ResponseWriter, r *http.Request) {
 	} else {
 		matches := videosPattern.FindStringSubmatch(r.URL.Path)
 		if len(matches) > 0 {
-			query := fmt.Sprintf(
+			row := constant_define.DB.QueryRow(
 				`SELECT Vid, Vcontent FROM videos
-				WHERE Vid=%v`,
+				WHERE Vid=?;`,
 				matches[1],
 			)
-			row := constant_define.DB.QueryRow(query)
 			video := sqlStruct.Video{}
 			var err error
 			row.Scan(

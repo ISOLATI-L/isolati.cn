@@ -13,14 +13,13 @@ import (
 
 type Provider interface {
 	InitSession(sid string, maxAge int64) (Session, error)
-	SetSession(session Session) error
-	GetSession(key string) Session
+	GetSession(sid string) Session
 	DestroySession(sid string) error
-	GCSession()
+	GCSession() bool
 }
 
 func newProvider(db *sql.DB) Provider {
-	if db != nil {                                                                                                                                      
+	if db != nil {
 		return newFromDatabase(db)
 	} else {
 		return newFromMemory()
@@ -172,6 +171,7 @@ const AGE2 = int(60 * time.Second)
 func (m *SessionManager) GC() {
 	m.lock.Lock()
 	defer m.lock.Unlock()
-	m.storage.GCSession()
-	time.AfterFunc(time.Duration(AGE2), m.GC)
+	if m.storage.GCSession() {
+		time.AfterFunc(time.Duration(AGE2), m.GC)
+	}
 }
