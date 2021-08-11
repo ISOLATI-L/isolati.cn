@@ -13,7 +13,7 @@ import (
 )
 
 type Provider interface {
-	InitSession(sid string, maxAge int64) (Session, error)
+	InitSession(sid string, maxAge uint64) (Session, error)
 	GetSession(sid string) Session
 	DestroySession(sid string) error
 	GCSession() bool
@@ -31,7 +31,7 @@ type SessionManager struct {
 	cookieName string
 	db         *sql.DB
 	storage    Provider
-	maxAge     int64
+	maxAge     uint64
 	lock       sync.Mutex
 }
 

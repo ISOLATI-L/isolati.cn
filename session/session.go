@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-const DEFAULT_TIME int64 = 1800
+const DEFAULT_TIME uint64 = 1800
 
 type Session interface {
 	Set(key interface{}, value interface{})
@@ -12,8 +12,8 @@ type Session interface {
 	Remove(key interface{}) error
 	GetLastAccessedTime() (time.Time, error)
 	UpdateLastAccessedTime()
-	GetMaxAge() int64
-	SetMaxAge(age int64)
+	GetMaxAge() uint64
+	SetMaxAge(age uint64)
 	GetId() string
 	Destroy() bool
 }

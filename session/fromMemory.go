@@ -9,7 +9,7 @@ type SessionFromMemory struct {
 	sid              string
 	lock             sync.Mutex
 	lastAccessedTime time.Time
-	maxAge           int64
+	maxAge           uint64
 	data             map[interface{}]interface{}
 }
 
@@ -46,11 +46,11 @@ func (si *SessionFromMemory) UpdateLastAccessedTime() {
 	si.lastAccessedTime = time.Now()
 }
 
-func (si *SessionFromMemory) GetMaxAge() int64 {
+func (si *SessionFromMemory) GetMaxAge() uint64 {
 	return si.maxAge
 }
 
-func (si *SessionFromMemory) SetMaxAge(age int64) {
+func (si *SessionFromMemory) SetMaxAge(age uint64) {
 	si.maxAge = age
 }
 
@@ -73,7 +73,7 @@ func newFromMemory() *FromMemory {
 	}
 }
 
-func (fm *FromMemory) InitSession(sid string, maxAge int64) (Session, error) {
+func (fm *FromMemory) InitSession(sid string, maxAge uint64) (Session, error) {
 	fm.lock.Lock()
 	defer fm.lock.Unlock()
 	newSession := newSessionFromMemory(sid)
@@ -103,13 +103,13 @@ func (fm *FromMemory) GCSession() bool {
 		return true
 	}
 	// log.Println("xxxxxxxxxxxxxx--gc-session", sessions)
-	now := time.Now().Unix()
+	now := uint64(time.Now().Unix())
 	for key, value := range sessions {
 		time, err := value.GetLastAccessedTime()
 		if err != nil {
 			continue
 		}
-		t := time.Unix() + int64(value.GetMaxAge())
+		t := uint64(time.Unix()) + value.GetMaxAge()
 		if t < now {
 			// log.Println("timeout------->", value)
 			delete(fm.sessions, key)

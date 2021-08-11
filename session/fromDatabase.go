@@ -141,13 +141,13 @@ func (si *SessionFromDatabase) UpdateLastAccessedTime() {
 	}
 }
 
-func (si *SessionFromDatabase) GetMaxAge() int64 {
+func (si *SessionFromDatabase) GetMaxAge() uint64 {
 	row := si.db.QueryRow(
 		`SELECT SmaxAge FROM sessions
 		WHERE Sid = ?;`,
 		si.sid,
 	)
-	var maxAge int64
+	var maxAge uint64
 	err := row.Scan(
 		&maxAge,
 	)
@@ -158,7 +158,7 @@ func (si *SessionFromDatabase) GetMaxAge() int64 {
 	return maxAge
 }
 
-func (si *SessionFromDatabase) SetMaxAge(age int64) {
+func (si *SessionFromDatabase) SetMaxAge(age uint64) {
 	result, err := si.db.Exec(
 		`UPDATE sessions SET SmaxAge = ?
 		WHERE Sid = ?;`,
@@ -215,7 +215,7 @@ func newFromDatabase(db *sql.DB) *FromDatabase {
 	}
 }
 
-func (fd *FromDatabase) InitSession(sid string, maxAge int64) (Session, error) {
+func (fd *FromDatabase) InitSession(sid string, maxAge uint64) (Session, error) {
 	fd.lock.Lock()
 	defer fd.lock.Unlock()
 	newSession := newSessionFromDatabase(fd.db, sid)
