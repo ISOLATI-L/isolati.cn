@@ -10,28 +10,28 @@ type SessionFromMemory struct {
 	lock             sync.Mutex
 	lastAccessedTime time.Time
 	maxAge           uint64
-	data             map[interface{}]interface{}
+	data             map[string]interface{}
 }
 
 func newSessionFromMemory(sid string) *SessionFromMemory {
 	return &SessionFromMemory{
 		sid:    sid,
-		data:   make(map[interface{}]interface{}),
+		data:   make(map[string]interface{}),
 		maxAge: DEFAULT_TIME,
 	}
 }
 
-func (si *SessionFromMemory) Set(key interface{}, value interface{}) {
+func (si *SessionFromMemory) Set(key string, value interface{}) {
 	si.lock.Lock()
 	defer si.lock.Unlock()
 	si.data[key] = value
 }
 
-func (si *SessionFromMemory) Get(key interface{}) interface{} {
+func (si *SessionFromMemory) Get(key string) interface{} {
 	return si.data[key]
 }
 
-func (si *SessionFromMemory) Remove(key interface{}) error {
+func (si *SessionFromMemory) Remove(key string) error {
 	if si.data[key] != nil {
 		delete(si.data, key)
 	}

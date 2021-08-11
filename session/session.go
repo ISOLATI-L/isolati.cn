@@ -7,9 +7,9 @@ import (
 const DEFAULT_TIME uint64 = 1800
 
 type Session interface {
-	Set(key interface{}, value interface{})
-	Get(key interface{}) interface{}
-	Remove(key interface{}) error
+	Set(key string, value interface{})
+	Get(key string) interface{}
+	Remove(key string) error
 	GetLastAccessedTime() (time.Time, error)
 	UpdateLastAccessedTime()
 	GetMaxAge() uint64

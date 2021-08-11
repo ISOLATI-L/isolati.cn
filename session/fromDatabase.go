@@ -38,7 +38,7 @@ func newSessionFromDatabase(db *sql.DB, sid string) *SessionFromDatabase {
 	}
 }
 
-func (si *SessionFromDatabase) Set(key interface{}, value interface{}) {
+func (si *SessionFromDatabase) Set(key string, value interface{}) {
 	key = fmt.Sprintf("$.%s", key)
 	si.lock.Lock()
 	defer si.lock.Unlock()
@@ -64,7 +64,7 @@ func (si *SessionFromDatabase) Set(key interface{}, value interface{}) {
 	}
 }
 
-func (si *SessionFromDatabase) Get(key interface{}) interface{} {
+func (si *SessionFromDatabase) Get(key string) interface{} {
 	key = fmt.Sprintf("$.%s", key)
 	row := si.db.QueryRow(
 		`SELECT JSON_EXTRACT(Sdata, ?) FROM sessions
@@ -81,7 +81,7 @@ func (si *SessionFromDatabase) Get(key interface{}) interface{} {
 	return result
 }
 
-func (si *SessionFromDatabase) Remove(key interface{}) error {
+func (si *SessionFromDatabase) Remove(key string) error {
 	key = fmt.Sprintf("$.%s", key)
 	result, err := si.db.Exec(
 		`UPDATE sessions SET Sdata = JSON_REMOVE(Sdata, ?)
