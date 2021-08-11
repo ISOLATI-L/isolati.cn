@@ -1,4 +1,4 @@
-package constant_define
+package global
 
 import (
 	"database/sql"

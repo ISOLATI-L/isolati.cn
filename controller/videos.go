@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"time"
 
-	"isolati.cn/constant_define"
 	"isolati.cn/database"
+	"isolati.cn/global"
 )
 
 type VideoList struct {
@@ -29,7 +29,7 @@ var numberPattern *regexp.Regexp
 func getVideoPage(w http.ResponseWriter, r *http.Request) {
 	matches := videosPattern.FindStringSubmatch(r.URL.Path)
 	if len(matches) > 0 {
-		row := constant_define.DB.QueryRow(
+		row := global.DB.QueryRow(
 			`SELECT Vid, Vcontent FROM videos
 			WHERE Vid=?;`,
 			matches[1],
@@ -50,8 +50,8 @@ func getVideoPage(w http.ResponseWriter, r *http.Request) {
 			videoTemplate.ExecuteTemplate(w, "layout", layoutMsg{
 				PageName: "videos",
 				ContainerData: sliderContainerData{
-					LeftSliderData:  constant_define.LEFT_SLIDER,
-					RightSliderData: constant_define.RIGHT_SLIDER,
+					LeftSliderData:  global.LEFT_SLIDER,
+					RightSliderData: global.RIGHT_SLIDER,
 					ContentData:     video.Vcontent,
 				},
 			})
@@ -83,7 +83,7 @@ func getVideosPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	// log.Println(page)
-	row := constant_define.DB.QueryRow(`SELECT COUNT(Vid) FROM videos;`)
+	row := global.DB.QueryRow(`SELECT COUNT(Vid) FROM videos;`)
 	var totalPage int64
 	err = row.Scan(
 		&totalPage,
@@ -104,7 +104,7 @@ func getVideosPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var rows *sql.Rows
-	rows, err = constant_define.DB.Query(
+	rows, err = global.DB.Query(
 		`SELECT Vid, Vtitle, Vcover, Vtime FROM videos
 			ORDER BY Vid DESC LIMIT ?, ?;`,
 		(page-1)*MAX_PER_PAGE,
@@ -150,8 +150,8 @@ func getVideosPage(w http.ResponseWriter, r *http.Request) {
 	videosTemplate.ExecuteTemplate(w, "layout", layoutMsg{
 		PageName: "videos",
 		ContainerData: sliderContainerData{
-			LeftSliderData:  constant_define.LEFT_SLIDER,
-			RightSliderData: constant_define.RIGHT_SLIDER,
+			LeftSliderData:  global.LEFT_SLIDER,
+			RightSliderData: global.RIGHT_SLIDER,
 			ContentData:     videos,
 		},
 	})
@@ -183,16 +183,16 @@ func registerVideosRoutes() {
 	}
 	template.Must(
 		videosTemplate.ParseFiles(
-			constant_define.ROOT_PATH+"/wwwroot/layout.html",
-			constant_define.ROOT_PATH+"/wwwroot/sliderContainer.html",
-			constant_define.ROOT_PATH+"/wwwroot/videos.html",
+			global.ROOT_PATH+"/wwwroot/layout.html",
+			global.ROOT_PATH+"/wwwroot/sliderContainer.html",
+			global.ROOT_PATH+"/wwwroot/videos.html",
 		),
 	)
 	template.Must(
 		videoTemplate.ParseFiles(
-			constant_define.ROOT_PATH+"/wwwroot/layout.html",
-			constant_define.ROOT_PATH+"/wwwroot/sliderContainer.html",
-			constant_define.ROOT_PATH+"/wwwroot/video.html",
+			global.ROOT_PATH+"/wwwroot/layout.html",
+			global.ROOT_PATH+"/wwwroot/sliderContainer.html",
+			global.ROOT_PATH+"/wwwroot/video.html",
 		),
 	)
 	http.HandleFunc("/videos", handleVideos)

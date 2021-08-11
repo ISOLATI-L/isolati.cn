@@ -7,8 +7,8 @@ import (
 	"log"
 	"net/http"
 
-	"isolati.cn/constant_define"
 	"isolati.cn/controller"
+	"isolati.cn/global"
 	"isolati.cn/middleware"
 	"isolati.cn/session"
 
@@ -38,7 +38,7 @@ func main() {
 	// }
 	var err error
 	SQL_Config, err = goconfig.LoadConfigFile(
-		constant_define.ROOT_PATH + "SQL.config.ini")
+		global.ROOT_PATH + "SQL.config.ini")
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
@@ -66,21 +66,21 @@ func main() {
 	connStr := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
 		user, password, server, port, database)
 	log.Println(connStr)
-	constant_define.DB, err = sql.Open("mysql", connStr)
-	constant_define.DB.SetConnMaxLifetime(100)
-	constant_define.DB.SetMaxIdleConns(10)
+	global.DB, err = sql.Open("mysql", connStr)
+	global.DB.SetConnMaxLifetime(100)
+	global.DB.SetMaxIdleConns(10)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	log.Println(constant_define.DB)
+	log.Println(global.DB)
 	ctx := context.Background()
-	err = constant_define.DB.PingContext(ctx)
+	err = global.DB.PingContext(ctx)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
 	log.Println("Connected!")
 
-	constant_define.UserSession = session.NewSessionManager("user", constant_define.DB)
+	global.UserSession = session.NewSessionManager("user", global.DB)
 
 	changePrefixMiddleware := middleware.NewChangePrefixMiddleware(
 		nil,
@@ -99,25 +99,25 @@ func main() {
 
 	http.Handle(
 		"/css/",
-		http.FileServer(http.Dir(constant_define.ROOT_PATH+"wwwroot")),
+		http.FileServer(http.Dir(global.ROOT_PATH+"wwwroot")),
 	)
 	http.Handle(
 		"/js/",
-		http.FileServer(http.Dir(constant_define.ROOT_PATH+"wwwroot")),
+		http.FileServer(http.Dir(global.ROOT_PATH+"wwwroot")),
 	)
 	http.Handle(
 		"/img/",
-		http.FileServer(http.Dir(constant_define.ROOT_PATH+"wwwroot")),
+		http.FileServer(http.Dir(global.ROOT_PATH+"wwwroot")),
 	)
 	http.Handle(
 		"/robots.txt",
-		http.FileServer(http.Dir(constant_define.ROOT_PATH+"wwwroot")),
+		http.FileServer(http.Dir(global.ROOT_PATH+"wwwroot")),
 	)
 	controller.RegisterRoutes()
 	err = server.ListenAndServe()
 	// err = server.ListenAndServeTLS(
-	// 	constant_define.ROOT_PATH+"isolati.cn.pem",
-	// 	constant_define.ROOT_PATH+"isolati.cn.key",
+	// 	global.ROOT_PATH+"isolati.cn.pem",
+	// 	global.ROOT_PATH+"isolati.cn.key",
 	// )
 	if err != nil {
 		log.Fatalln(err.Error())

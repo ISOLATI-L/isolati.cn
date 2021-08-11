@@ -10,14 +10,14 @@ import (
 	"regexp"
 	"strings"
 
-	"isolati.cn/constant_define"
+	"isolati.cn/global"
 )
 
 var filesTemplate = template.New("about")
 
 var fileHandler = http.StripPrefix(
 	"/files/",
-	http.FileServer(http.Dir(constant_define.SHARE_FILES_PATH)),
+	http.FileServer(http.Dir(global.SHARE_FILES_PATH)),
 )
 var filePattern *regexp.Regexp
 var slashPattern *regexp.Regexp
@@ -34,7 +34,7 @@ type fileView struct {
 
 func handleFiles(w http.ResponseWriter, r *http.Request) {
 	matches := filePattern.FindStringSubmatch(r.URL.Path)
-	var filePath = constant_define.SHARE_FILES_PATH
+	var filePath = global.SHARE_FILES_PATH
 	if len(matches) > 0 {
 		filePath += "/" + matches[1]
 	}
@@ -79,8 +79,8 @@ func handleFiles(w http.ResponseWriter, r *http.Request) {
 		filesTemplate.ExecuteTemplate(w, "layout", layoutMsg{
 			PageName: "files",
 			ContainerData: sliderContainerData{
-				LeftSliderData:  constant_define.LEFT_SLIDER,
-				RightSliderData: constant_define.RIGHT_SLIDER,
+				LeftSliderData:  global.LEFT_SLIDER,
+				RightSliderData: global.RIGHT_SLIDER,
 				ContentData:     filesList,
 			},
 		})
@@ -92,9 +92,9 @@ func handleFiles(w http.ResponseWriter, r *http.Request) {
 func registerFilesRoutes() {
 	template.Must(
 		filesTemplate.ParseFiles(
-			constant_define.ROOT_PATH+"/wwwroot/layout.html",
-			constant_define.ROOT_PATH+"/wwwroot/sliderContainer.html",
-			constant_define.ROOT_PATH+"/wwwroot/files.html",
+			global.ROOT_PATH+"/wwwroot/layout.html",
+			global.ROOT_PATH+"/wwwroot/sliderContainer.html",
+			global.ROOT_PATH+"/wwwroot/files.html",
 		),
 	)
 	var err error

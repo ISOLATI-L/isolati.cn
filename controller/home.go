@@ -4,7 +4,7 @@ import (
 	"html/template"
 	"net/http"
 
-	"isolati.cn/constant_define"
+	"isolati.cn/global"
 )
 
 var homeTemplate = template.New("home")
@@ -13,8 +13,8 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 	homeTemplate.ExecuteTemplate(w, "layout", layoutMsg{
 		PageName: "home",
 		ContainerData: sliderContainerData{
-			LeftSliderData:  constant_define.LEFT_SLIDER,
-			RightSliderData: constant_define.RIGHT_SLIDER,
+			LeftSliderData:  global.LEFT_SLIDER,
+			RightSliderData: global.RIGHT_SLIDER,
 			ContentData:     nil,
 		},
 	})
@@ -23,9 +23,9 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 func registerHomeRoutes() {
 	template.Must(
 		homeTemplate.ParseFiles(
-			constant_define.ROOT_PATH+"/wwwroot/layout.html",
-			constant_define.ROOT_PATH+"/wwwroot/sliderContainer.html",
-			constant_define.ROOT_PATH+"/wwwroot/home.html",
+			global.ROOT_PATH+"/wwwroot/layout.html",
+			global.ROOT_PATH+"/wwwroot/sliderContainer.html",
+			global.ROOT_PATH+"/wwwroot/home.html",
 		),
 	)
 	http.HandleFunc("/home", handleHome)

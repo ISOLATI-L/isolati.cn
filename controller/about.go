@@ -4,7 +4,7 @@ import (
 	"html/template"
 	"net/http"
 
-	"isolati.cn/constant_define"
+	"isolati.cn/global"
 )
 
 var aboutTemplate = template.New("about")
@@ -13,8 +13,8 @@ func handleAbout(w http.ResponseWriter, r *http.Request) {
 	aboutTemplate.ExecuteTemplate(w, "layout", layoutMsg{
 		PageName: "about",
 		ContainerData: sliderContainerData{
-			LeftSliderData:  constant_define.LEFT_SLIDER,
-			RightSliderData: constant_define.RIGHT_SLIDER,
+			LeftSliderData:  global.LEFT_SLIDER,
+			RightSliderData: global.RIGHT_SLIDER,
 			ContentData:     nil,
 		},
 	})
@@ -23,9 +23,9 @@ func handleAbout(w http.ResponseWriter, r *http.Request) {
 func registerAboutRoutes() {
 	template.Must(
 		aboutTemplate.ParseFiles(
-			constant_define.ROOT_PATH+"/wwwroot/layout.html",
-			constant_define.ROOT_PATH+"/wwwroot/sliderContainer.html",
-			constant_define.ROOT_PATH+"/wwwroot/about.html",
+			global.ROOT_PATH+"/wwwroot/layout.html",
+			global.ROOT_PATH+"/wwwroot/sliderContainer.html",
+			global.ROOT_PATH+"/wwwroot/about.html",
 		),
 	)
 	http.HandleFunc("/about", handleAbout)
