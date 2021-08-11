@@ -9,7 +9,7 @@ import (
 
 var aboutTemplate = template.New("about")
 
-func handleAbout(w http.ResponseWriter, r *http.Request) {
+func showAboutPage(w http.ResponseWriter, r *http.Request) {
 	aboutTemplate.ExecuteTemplate(w, "layout", layoutMsg{
 		PageName: "about",
 		ContainerData: sliderContainerData{
@@ -18,6 +18,15 @@ func handleAbout(w http.ResponseWriter, r *http.Request) {
 			ContentData:     nil,
 		},
 	})
+}
+
+func handleAbout(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		showAboutPage(w, r)
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
 }
 
 func registerAboutRoutes() {

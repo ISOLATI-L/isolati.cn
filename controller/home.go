@@ -9,7 +9,7 @@ import (
 
 var homeTemplate = template.New("home")
 
-func handleHome(w http.ResponseWriter, r *http.Request) {
+func showHomePage(w http.ResponseWriter, r *http.Request) {
 	homeTemplate.ExecuteTemplate(w, "layout", layoutMsg{
 		PageName: "home",
 		ContainerData: sliderContainerData{
@@ -18,6 +18,15 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 			ContentData:     nil,
 		},
 	})
+}
+
+func handleHome(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		showHomePage(w, r)
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
 }
 
 func registerHomeRoutes() {

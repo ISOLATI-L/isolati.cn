@@ -26,7 +26,7 @@ var videoTemplate = template.New("video")
 var videosPattern *regexp.Regexp
 var numberPattern *regexp.Regexp
 
-func getVideoPage(w http.ResponseWriter, r *http.Request) {
+func showVideoPage(w http.ResponseWriter, r *http.Request) {
 	matches := videosPattern.FindStringSubmatch(r.URL.Path)
 	if len(matches) > 0 {
 		row := global.DB.QueryRow(
@@ -63,7 +63,7 @@ func getVideoPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getVideosPage(w http.ResponseWriter, r *http.Request) {
+func showVideosPage(w http.ResponseWriter, r *http.Request) {
 	var page int64
 	var err error
 	pageStr := r.URL.Query().Get("page")
@@ -162,9 +162,9 @@ func handleVideos(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		if r.URL.Path == "/videos" ||
 			r.URL.Path == "/videos/" {
-			getVideosPage(w, r)
+			showVideosPage(w, r)
 		} else {
-			getVideoPage(w, r)
+			showVideoPage(w, r)
 		}
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)

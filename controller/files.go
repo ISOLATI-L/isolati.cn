@@ -32,7 +32,7 @@ type fileView struct {
 	Files []fileOrDir
 }
 
-func handleFiles(w http.ResponseWriter, r *http.Request) {
+func showFilesPage(w http.ResponseWriter, r *http.Request) {
 	matches := filePattern.FindStringSubmatch(r.URL.Path)
 	var filePath = global.SHARE_FILES_PATH
 	if len(matches) > 0 {
@@ -86,6 +86,15 @@ func handleFiles(w http.ResponseWriter, r *http.Request) {
 		})
 	} else {
 		fileHandler.ServeHTTP(w, r)
+	}
+}
+
+func handleFiles(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		showFilesPage(w, r)
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 }
 
