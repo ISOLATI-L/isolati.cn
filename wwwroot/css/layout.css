@@ -180,13 +180,13 @@ font{
     line-height: 30px;
 }
 
-.footer_content .footer_link{
+.default_link{
     color: #FFFFFF;
     text-decoration: none;
     transition: color 0.25s ease-in-out;
 }
 
-.footer_content .footer_link:hover{
+.default_link:hover{
     color: #BFBFBF;
     transition: color 0.25s ease-in-out;
 }
