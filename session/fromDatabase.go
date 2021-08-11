@@ -227,9 +227,24 @@ func (fd *FromDatabase) InitSession(sid string, maxAge int64) (Session, error) {
 }
 
 func (fd *FromDatabase) GetSession(sid string) Session {
-	return &SessionFromDatabase{
-		sid: sid,
-		db:  fd.db,
+	row := fd.db.QueryRow(
+		`SELECT Sid FROM sessions
+		WHERE Sid = ?;`,
+		sid,
+	)
+	var Sid string
+	err := row.Scan(&Sid)
+	if err != nil {
+		log.Println(err.Error())
+		return nil
+	}
+	if Sid == sid {
+		return &SessionFromDatabase{
+			sid: sid,
+			db:  fd.db,
+		}
+	} else {
+		return nil
 	}
 }
 

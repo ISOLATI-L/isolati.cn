@@ -80,7 +80,7 @@ func main() {
 	}
 	log.Println("Connected!")
 
-	constant_define.SessionM = session.NewSessionManager(constant_define.DB)
+	constant_define.UserSession = session.NewSessionManager("user", constant_define.DB)
 
 	changePrefixMiddleware := middleware.NewChangePrefixMiddleware(
 		nil,

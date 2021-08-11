@@ -39,4 +39,4 @@ const RIGHT_SLIDER = template.HTML(`
 
 var DB *sql.DB
 
-var SessionM *session.SessionManager
+var UserSession *session.SessionManager
