@@ -127,10 +127,6 @@ func main() {
 		"/img/",
 		http.FileServer(http.Dir(global.ROOT_PATH+"wwwroot")),
 	)
-	http.Handle(
-		"/robots.txt",
-		http.FileServer(http.Dir(global.ROOT_PATH+"wwwroot")),
-	)
 	controller.RegisterRoutes()
 	err = server.ListenAndServe()
 	// err = server.ListenAndServeTLS(

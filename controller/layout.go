@@ -44,4 +44,5 @@ func RegisterRoutes() {
 	registerAboutRoutes()
 	registerFilesRoutes()
 	registerVideosRoutes()
+	registerRobotsRoutes()
 }
