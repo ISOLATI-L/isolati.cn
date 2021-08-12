@@ -21,7 +21,7 @@ CREATE TABLE `videos` (
   `Vcover` varchar(100) NOT NULL DEFAULT '',
   `Vtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`Vid`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8
+)
 ```
 #### users表（暂未用到）
 ```
@@ -31,7 +31,7 @@ CREATE TABLE `users` (
   `Upassword` varchar(16) NOT NULL,
   `Uadmin` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`Uid`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8
+)
 ```
 #### sessions表（暂未用到）
 ```
@@ -41,5 +41,5 @@ CREATE TABLE `sessions` (
   `SmaxAge` int(10) unsigned NOT NULL DEFAULT '1800',
   `Sdata` json NOT NULL,
   PRIMARY KEY (`Sid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
+)
 ```
