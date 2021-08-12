@@ -2,6 +2,7 @@ package session
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"sync"
@@ -138,13 +139,13 @@ func (si *SessionFromDatabase) UpdateLastAccessedTime() {
 	}
 }
 
-func (si *SessionFromDatabase) GetMaxAge() uint64 {
+func (si *SessionFromDatabase) GetMaxAge() int64 {
 	row := si.db.QueryRow(
 		`SELECT SmaxAge FROM sessions
 		WHERE Sid = ?;`,
 		si.sid,
 	)
-	var maxAge uint64
+	var maxAge int64
 	err := row.Scan(
 		&maxAge,
 	)
@@ -155,7 +156,7 @@ func (si *SessionFromDatabase) GetMaxAge() uint64 {
 	return maxAge
 }
 
-func (si *SessionFromDatabase) SetMaxAge(age uint64) {
+func (si *SessionFromDatabase) SetMaxAge(age int64) {
 	result, err := si.db.Exec(
 		`UPDATE sessions SET SmaxAge = ?
 		WHERE Sid = ?;`,
@@ -180,27 +181,6 @@ func (si *SessionFromDatabase) GetId() string {
 	return si.sid
 }
 
-func (si *SessionFromDatabase) Destroy() bool {
-	result, err := si.db.Exec(
-		`DELETE FROM sessions
-		WHERE Sid = ?;`,
-		si.sid,
-	)
-	if err != nil {
-		log.Println(err.Error())
-		return false
-	}
-	affected, err := result.RowsAffected()
-	if err != nil {
-		log.Println(err.Error())
-		return false
-	}
-	if affected == 0 {
-		log.Println(result)
-	}
-	return true
-}
-
 type FromDatabase struct {
 	lock sync.Mutex
 	db   *sql.DB
@@ -212,7 +192,7 @@ func newFromDatabase(db *sql.DB) *FromDatabase {
 	}
 }
 
-func (fd *FromDatabase) InitSession(sid string, maxAge uint64) (Session, error) {
+func (fd *FromDatabase) InitSession(sid string, maxAge int64) (Session, error) {
 	fd.lock.Lock()
 	defer fd.lock.Unlock()
 	newSession := newSessionFromDatabase(fd.db, sid)
@@ -246,7 +226,24 @@ func (fd *FromDatabase) GetSession(sid string) Session {
 }
 
 func (fd *FromDatabase) DestroySession(sid string) error {
-	fd.GetSession(sid).Destroy()
+	result, err := fd.db.Exec(
+		`DELETE FROM sessions
+		WHERE Sid = ?;`,
+		sid,
+	)
+	if err != nil {
+		log.Println(err.Error())
+		return err
+	}
+	affected, err := result.RowsAffected()
+	if err != nil {
+		log.Println(err.Error())
+		err = errors.New("")
+		return err
+	}
+	if affected == 0 {
+		log.Println(result)
+	}
 	return nil
 }
 

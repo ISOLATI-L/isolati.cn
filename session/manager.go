@@ -17,12 +17,12 @@ type SessionManager struct {
 	cookieName string
 	db         *sql.DB
 	storage    Provider
-	maxAge     uint64
+	maxAge     int64
 	httpOnly   bool
 	lock       sync.Mutex
 }
 
-func NewSessionManager(cookieName string, db *sql.DB, maxAge uint64, httpOnly bool) *SessionManager {
+func NewSessionManager(cookieName string, db *sql.DB, maxAge int64, httpOnly bool) *SessionManager {
 	sessionManager := &SessionManager{
 		cookieName: cookieName,
 		db:         db,
@@ -141,7 +141,7 @@ func (m *SessionManager) Update(w http.ResponseWriter, r *http.Request) Session 
 	}
 	session.UpdateLastAccessedTime()
 
-	if m.maxAge != uint64(cookie.MaxAge) {
+	if m.maxAge != int64(cookie.MaxAge) {
 		cookie.MaxAge = int(m.maxAge)
 	}
 	http.SetCookie(w, cookie)

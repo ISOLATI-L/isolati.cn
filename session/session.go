@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-const DEFAULT_TIME uint64 = 1800
+const DEFAULT_TIME int64 = 1800
 
 type Session interface {
 	Set(key string, value interface{})
@@ -13,14 +13,13 @@ type Session interface {
 	Remove(key string) error
 	GetLastAccessedTime() (time.Time, error)
 	UpdateLastAccessedTime()
-	GetMaxAge() uint64
-	SetMaxAge(age uint64)
+	GetMaxAge() int64
+	SetMaxAge(age int64)
 	GetId() string
-	Destroy() bool
 }
 
 type Provider interface {
-	InitSession(sid string, maxAge uint64) (Session, error)
+	InitSession(sid string, maxAge int64) (Session, error)
 	GetSession(sid string) Session
 	DestroySession(sid string) error
 	GCSession() bool
