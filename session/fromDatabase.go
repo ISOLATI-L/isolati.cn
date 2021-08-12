@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"sync"
-	"time"
 )
 
 type SessionFromDatabase struct {
@@ -14,10 +13,12 @@ type SessionFromDatabase struct {
 	db  *sql.DB
 }
 
-func newSessionFromDatabase(db *sql.DB, sid string) *SessionFromDatabase {
+func newSessionFromDatabase(db *sql.DB, sid string, maxAge int64) *SessionFromDatabase {
 	result, err := db.Exec(
-		`INSERT INTO sessions (Sid, Sdata) VALUES (?, JSON_OBJECT());`,
+		`INSERT INTO sessions (Sid, SmaxAge, Sdata)
+		VALUES (?, ?, JSON_OBJECT());`,
 		sid,
+		maxAge,
 	)
 	if err != nil {
 		log.Println(err.Error())
@@ -36,87 +37,6 @@ func newSessionFromDatabase(db *sql.DB, sid string) *SessionFromDatabase {
 		sid: sid,
 		db:  db,
 	}
-}
-
-func (si *SessionFromDatabase) Set(key string, value interface{}) {
-	key = fmt.Sprintf("$.%s", key)
-	result, err := si.db.Exec(
-		`UPDATE sessions SET Sdata = JSON_SET(Sdata, ?, ?)
-		WHERE Sid = ?;`,
-		key,
-		value,
-		si.sid,
-	)
-	if err != nil {
-		log.Println(err.Error())
-		return
-	}
-	affected, err := result.RowsAffected()
-	if err != nil {
-		log.Println(err.Error())
-		return
-	}
-	if affected == 0 {
-		log.Println(result)
-		return
-	}
-}
-
-func (si *SessionFromDatabase) Get(key string) interface{} {
-	key = fmt.Sprintf("$.%s", key)
-	row := si.db.QueryRow(
-		`SELECT JSON_EXTRACT(Sdata, ?) FROM sessions
-		WHERE Sid = ?;`,
-		key,
-		si.sid,
-	)
-	var result interface{}
-	err := row.Scan(&result)
-	if err != nil {
-		log.Println(result)
-		return nil
-	}
-	return result
-}
-
-func (si *SessionFromDatabase) Remove(key string) error {
-	key = fmt.Sprintf("$.%s", key)
-	result, err := si.db.Exec(
-		`UPDATE sessions SET Sdata = JSON_REMOVE(Sdata, ?)
-		WHERE Sid = ?;`,
-		key,
-		si.sid,
-	)
-	if err != nil {
-		log.Println(err.Error())
-		return err
-	}
-	affected, err := result.RowsAffected()
-	if err != nil {
-		log.Println(err.Error())
-		return err
-	}
-	if affected == 0 {
-		log.Println(result)
-	}
-	return nil
-}
-
-func (si *SessionFromDatabase) GetLastAccessedTime() (time.Time, error) {
-	row := si.db.QueryRow(
-		`SELECT SlastAccessedTime FROM sessions
-		WHERE Sid = ?;`,
-		si.sid,
-	)
-	var timeStr string
-	err := row.Scan(
-		&timeStr,
-	)
-	if err != nil {
-		log.Println(err.Error())
-		return time.Now(), err
-	}
-	return time.ParseInLocation("2006-01-02 15:04:05", timeStr, time.Local)
 }
 
 func (si *SessionFromDatabase) UpdateLastAccessedTime() {
@@ -139,48 +59,6 @@ func (si *SessionFromDatabase) UpdateLastAccessedTime() {
 	}
 }
 
-func (si *SessionFromDatabase) GetMaxAge() int64 {
-	row := si.db.QueryRow(
-		`SELECT SmaxAge FROM sessions
-		WHERE Sid = ?;`,
-		si.sid,
-	)
-	var maxAge int64
-	err := row.Scan(
-		&maxAge,
-	)
-	if err != nil {
-		log.Println(err.Error())
-		return 0
-	}
-	return maxAge
-}
-
-func (si *SessionFromDatabase) SetMaxAge(age int64) {
-	result, err := si.db.Exec(
-		`UPDATE sessions SET SmaxAge = ?
-		WHERE Sid = ?;`,
-		age,
-		si.sid,
-	)
-	if err != nil {
-		log.Println(err.Error())
-		return
-	}
-	affected, err := result.RowsAffected()
-	if err != nil {
-		log.Println(err.Error())
-		return
-	}
-	if affected == 0 {
-		log.Println(result)
-	}
-}
-
-func (si *SessionFromDatabase) GetId() string {
-	return si.sid
-}
-
 type FromDatabase struct {
 	lock sync.Mutex
 	db   *sql.DB
@@ -195,10 +73,7 @@ func newFromDatabase(db *sql.DB) *FromDatabase {
 func (fd *FromDatabase) InitSession(sid string, maxAge int64) (Session, error) {
 	fd.lock.Lock()
 	defer fd.lock.Unlock()
-	newSession := newSessionFromDatabase(fd.db, sid)
-	if maxAge != 0 && maxAge != DEFAULT_TIME {
-		newSession.SetMaxAge(maxAge)
-	}
+	newSession := newSessionFromDatabase(fd.db, sid, maxAge)
 	// log.Println(newSession)
 	return newSession, nil
 }
@@ -225,6 +100,72 @@ func (fd *FromDatabase) GetSession(sid string) Session {
 	}
 }
 
+func (fd *FromDatabase) Set(sid string, key string, value interface{}) error {
+	key = fmt.Sprintf("$.%s", key)
+	result, err := fd.db.Exec(
+		`UPDATE sessions SET Sdata = JSON_SET(Sdata, ?, ?)
+		WHERE Sid = ?;`,
+		key,
+		value,
+		sid,
+	)
+	if err != nil {
+		log.Println(err.Error())
+		return err
+	}
+	affected, err := result.RowsAffected()
+	if err != nil {
+		log.Println(err.Error())
+		return err
+	}
+	if affected == 0 {
+		log.Println(result)
+		return errors.New("affected 0 rows")
+	}
+	return nil
+}
+
+func (fd *FromDatabase) Get(sid string, key string) interface{} {
+	key = fmt.Sprintf("$.%s", key)
+	row := fd.db.QueryRow(
+		`SELECT JSON_EXTRACT(Sdata, ?) FROM sessions
+		WHERE Sid = ?;`,
+		key,
+		sid,
+	)
+	var result interface{}
+	err := row.Scan(&result)
+	if err != nil {
+		log.Println(result)
+		return nil
+	}
+	return result
+}
+
+func (fd *FromDatabase) Remove(sid string, key string) error {
+	key = fmt.Sprintf("$.%s", key)
+	result, err := fd.db.Exec(
+		`UPDATE sessions SET Sdata = JSON_REMOVE(Sdata, ?)
+		WHERE Sid = ?;`,
+		key,
+		sid,
+	)
+	if err != nil {
+		log.Println(err.Error())
+		return err
+	}
+	affected, err := result.RowsAffected()
+	if err != nil {
+		log.Println(err.Error())
+		return err
+	}
+	if affected == 0 {
+		log.Println(result)
+		return errors.New("affected 0 rows")
+	}
+	return nil
+}
+
 func (fd *FromDatabase) DestroySession(sid string) error {
 	result, err := fd.db.Exec(
 		`DELETE FROM sessions
@@ -238,11 +179,11 @@ func (fd *FromDatabase) DestroySession(sid string) error {
 	affected, err := result.RowsAffected()
 	if err != nil {
 		log.Println(err.Error())
-		err = errors.New("")
 		return err
 	}
 	if affected == 0 {
 		log.Println(result)
+		return errors.New("affected 0 rows")
 	}
 	return nil
 }

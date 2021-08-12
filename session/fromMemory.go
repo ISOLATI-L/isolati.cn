@@ -13,18 +13,19 @@ type SessionFromMemory struct {
 	data             map[string]interface{}
 }
 
-func newSessionFromMemory(sid string) *SessionFromMemory {
+func newSessionFromMemory(sid string, maxAge int64) *SessionFromMemory {
 	return &SessionFromMemory{
 		sid:    sid,
 		data:   make(map[string]interface{}),
-		maxAge: DEFAULT_TIME,
+		maxAge: maxAge,
 	}
 }
 
-func (si *SessionFromMemory) Set(key string, value interface{}) {
+func (si *SessionFromMemory) Set(key string, value interface{}) error {
 	si.lock.Lock()
 	defer si.lock.Unlock()
 	si.data[key] = value
+	return nil
 }
 
 func (si *SessionFromMemory) Get(key string) interface{} {
@@ -46,18 +47,6 @@ func (si *SessionFromMemory) UpdateLastAccessedTime() {
 	si.lastAccessedTime = time.Now()
 }
 
-func (si *SessionFromMemory) GetMaxAge() int64 {
-	return si.maxAge
-}
-
-func (si *SessionFromMemory) SetMaxAge(age int64) {
-	si.maxAge = age
-}
-
-func (si *SessionFromMemory) GetId() string {
-	return si.sid
-}
-
 type FromMemory struct {
 	lock     sync.Mutex
 	sessions map[string]Session
@@ -72,10 +61,7 @@ func newFromMemory() *FromMemory {
 func (fm *FromMemory) InitSession(sid string, maxAge int64) (Session, error) {
 	fm.lock.Lock()
 	defer fm.lock.Unlock()
-	newSession := newSessionFromMemory(sid)
-	if maxAge != 0 {
-		newSession.SetMaxAge(maxAge)
-	}
+	newSession := newSessionFromMemory(sid, maxAge)
 	newSession.UpdateLastAccessedTime()
 	fm.sessions[sid] = newSession
 	// log.Println(newSession)
@@ -84,6 +70,18 @@ func (fm *FromMemory) InitSession(sid string, maxAge int64) (Session, error) {
 
 func (fm *FromMemory) GetSession(sid string) Session {
 	return fm.sessions[sid]
+}
+
+func (fm *FromMemory) Set(sid string, key string, value interface{}) error {
+	return fm.GetSession(sid).(*SessionFromMemory).Set(key, value)
+}
+
+func (fm *FromMemory) Get(sid string, key string) interface{} {
+	return fm.GetSession(sid).(*SessionFromMemory).Get(key)
+}
+
+func (fm *FromMemory) Remove(sid string, key string) error {
+	return fm.GetSession(sid).(*SessionFromMemory).Remove(key)
 }
 
 func (fm *FromMemory) DestroySession(sid string) error {
@@ -101,11 +99,8 @@ func (fm *FromMemory) GCSession() bool {
 	// log.Println("xxxxxxxxxxxxxx--gc-session", sessions)
 	now := time.Now().Unix()
 	for key, value := range sessions {
-		time, err := value.GetLastAccessedTime()
-		if err != nil {
-			continue
-		}
-		t := time.Unix() + value.GetMaxAge()
+		time := value.(*SessionFromMemory).lastAccessedTime
+		t := time.Unix() + value.(*SessionFromMemory).maxAge
 		if t < now {
 			// log.Println("timeout------->", value)
 			delete(fm.sessions, key)
