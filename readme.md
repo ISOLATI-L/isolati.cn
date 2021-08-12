@@ -31,7 +31,7 @@ CREATE TABLE `robots` (
   `RuserAgent` text NOT NULL,
   `Rtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`Rid`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8
+)
 ```
 #### users表（暂未使用）
 ```
