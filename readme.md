@@ -46,8 +46,12 @@ CREATE TABLE `sessions` (
 ```
 #### auto_delete_session事件（暂未使用）
 ```
-CREATE EVENT auto_delete_session ON SCHEDULE
+CREATE EVENT `auto_delete_session` ON SCHEDULE
 EVERY 1 MINUTE DO
-DELETE FROM sessions
-WHERE (UNIX_TIMESTAMP(CURRENT_TIMESTAMP)-UNIX_TIMESTAMP(SlastAccessedTime)) > SmaxAge;
+DELETE FROM
+  sessions
+WHERE
+  (
+    unix_timestamp(CURRENT_TIMESTAMP) - unix_timestamp(SlastAccessedTime)
+  ) > SmaxAge
 ```
