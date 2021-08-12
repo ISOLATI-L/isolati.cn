@@ -250,6 +250,8 @@ func (fd *FromDatabase) DestroySession(sid string) error {
 	return nil
 }
 
+// 已在数据库设置事件自动清除过期sessions
+// 无需在此处进行清除工作
 func (fd *FromDatabase) GCSession() bool {
 	return false
 }

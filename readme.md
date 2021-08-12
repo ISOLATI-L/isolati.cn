@@ -12,7 +12,7 @@ user     = <用户名>
 password = <密码>
 database = <数据库名称>
 ```
-### 数据库表
+### 数据库设置
 #### videos表
 ```
 CREATE TABLE `videos` (
@@ -43,4 +43,11 @@ CREATE TABLE `sessions` (
   `Sdata` json NOT NULL,
   PRIMARY KEY (`Sid`)
 )
+```
+#### auto_delete_session事件（暂未使用）
+```
+CREATE EVENT auto_delete_session ON SCHEDULE
+EVERY 1 MINUTE DO
+DELETE FROM sessions
+WHERE (UNIX_TIMESTAMP(CURRENT_TIMESTAMP)-UNIX_TIMESTAMP(SlastAccessedTime)) > SmaxAge;
 ```
