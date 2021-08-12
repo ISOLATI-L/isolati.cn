@@ -24,6 +24,15 @@ CREATE TABLE `videos` (
   PRIMARY KEY (`Vid`)
 )
 ```
+#### robots表
+```
+CREATE TABLE `robots` (
+  `Rid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `RuserAgent` text NOT NULL,
+  `Rtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`Rid`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8
+```
 #### users表（暂未使用）
 ```
 CREATE TABLE `users` (
