@@ -31,6 +31,18 @@ var (
 var SQL_Config *goconfig.ConfigFile
 
 func main() {
+	var err error
+	// var f *os.File
+	// f, err = os.OpenFile(
+	// 	global.ROOT_PATH+"isolati.cn.log",
+	// 	os.O_CREATE|os.O_APPEND|os.O_WRONLY,
+	// 	0666,
+	// )
+	// if err != nil {
+	// 	log.Fatalln(err.Error())
+	// }
+	// log.SetOutput(f)
+
 	// b := make([]byte, 32)
 	// for i := 0; i < 100; i++ {
 	// 	if _, err := io.ReadFull(rand.Reader, b); err != nil {
@@ -39,7 +51,6 @@ func main() {
 	// 	randId := fmt.Sprintf("%x", md5.Sum(b))
 	// 	log.Println(randId)
 	// }
-	var err error
 	SQL_Config, err = goconfig.LoadConfigFile(
 		global.ROOT_PATH + "SQL.config.ini")
 	if err != nil {
@@ -75,7 +86,6 @@ func main() {
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	log.Println(global.DB)
 	ctx := context.Background()
 	err = global.DB.PingContext(ctx)
 	if err != nil {
