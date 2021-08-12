@@ -33,8 +33,11 @@ var SQL_Config *goconfig.ConfigFile
 func main() {
 	// b := make([]byte, 32)
 	// for i := 0; i < 100; i++ {
-	// 	io.ReadFull(rand.Reader, b)
-	// 	log.Println(base64.URLEncoding.EncodeToString(b))
+	// 	if _, err := io.ReadFull(rand.Reader, b); err != nil {
+	// 		return
+	// 	}
+	// 	randId := fmt.Sprintf("%x", md5.Sum(b))
+	// 	log.Println(randId)
 	// }
 	var err error
 	SQL_Config, err = goconfig.LoadConfigFile(
@@ -80,7 +83,12 @@ func main() {
 	}
 	log.Println("Connected!")
 
-	global.UserSession = session.NewSessionManager("user", global.DB)
+	global.UserSession = session.NewSessionManager(
+		"user",
+		global.DB,
+		session.DEFAULT_TIME,
+		false,
+	)
 
 	changePrefixMiddleware := middleware.NewChangePrefixMiddleware(
 		nil,

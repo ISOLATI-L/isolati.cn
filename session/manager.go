@@ -1,9 +1,10 @@
 package session
 
 import (
+	"crypto/md5"
 	"crypto/rand"
 	"database/sql"
-	"encoding/base64"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -17,15 +18,17 @@ type SessionManager struct {
 	db         *sql.DB
 	storage    Provider
 	maxAge     uint64
+	httpOnly   bool
 	lock       sync.Mutex
 }
 
-func NewSessionManager(cookieName string, db *sql.DB) *SessionManager {
+func NewSessionManager(cookieName string, db *sql.DB, maxAge uint64, httpOnly bool) *SessionManager {
 	sessionManager := &SessionManager{
 		cookieName: cookieName,
 		db:         db,
 		storage:    newProvider(db),
-		maxAge:     DEFAULT_TIME,
+		maxAge:     maxAge,
+		httpOnly:   httpOnly,
 	}
 	go sessionManager.GC()
 	return sessionManager
@@ -41,17 +44,17 @@ func (m *SessionManager) BeginSession(w http.ResponseWriter, r *http.Request) Se
 	cookie, err := r.Cookie(m.cookieName)
 	if err != nil || cookie.Value == "" {
 		sid := m.randomId()
-		session, err := m.storage.InitSession(sid, m.maxAge)
+		maxAge := m.maxAge
+		session, err := m.storage.InitSession(sid, maxAge)
 		if err != nil {
 			log.Println(err.Error())
 			return nil
 		}
-		maxAge := m.maxAge
 		uid_cookie := &http.Cookie{
 			Name:     m.cookieName,
 			Value:    url.QueryEscape(sid),
 			Path:     "/",
-			HttpOnly: false,
+			HttpOnly: m.httpOnly,
 			MaxAge:   int(maxAge),
 		}
 		http.SetCookie(w, uid_cookie)
@@ -60,17 +63,17 @@ func (m *SessionManager) BeginSession(w http.ResponseWriter, r *http.Request) Se
 		sid, _ := url.QueryUnescape(cookie.Value)
 		session := m.storage.GetSession(sid)
 		if session == nil {
-			newSession, err := m.storage.InitSession(sid, m.maxAge)
+			maxAge := m.maxAge
+			newSession, err := m.storage.InitSession(sid, maxAge)
 			if err != nil {
 				log.Println(err.Error())
 				return nil
 			}
-			maxAge := m.maxAge
 			newCookie := http.Cookie{
 				Name:     m.cookieName,
 				Value:    url.QueryEscape(sid),
 				Path:     "/",
-				HttpOnly: true,
+				HttpOnly: m.httpOnly,
 				MaxAge:   int(maxAge),
 				Expires:  time.Now().Add(time.Duration(maxAge)),
 			}
@@ -138,10 +141,8 @@ func (m *SessionManager) Update(w http.ResponseWriter, r *http.Request) Session 
 	}
 	session.UpdateLastAccessedTime()
 
-	if m.maxAge != 0 {
+	if m.maxAge != uint64(cookie.MaxAge) {
 		cookie.MaxAge = int(m.maxAge)
-	} else {
-		cookie.MaxAge = int(session.GetMaxAge())
 	}
 	http.SetCookie(w, cookie)
 	return session
@@ -152,7 +153,7 @@ func RandomId() string {
 	if _, err := io.ReadFull(rand.Reader, b); err != nil {
 		return ""
 	}
-	randId := base64.URLEncoding.EncodeToString(b)
+	randId := fmt.Sprintf("%x", md5.Sum(b))
 	return randId
 }
 

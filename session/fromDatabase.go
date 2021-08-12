@@ -9,9 +9,8 @@ import (
 )
 
 type SessionFromDatabase struct {
-	sid  string
-	lock sync.Mutex
-	db   *sql.DB
+	sid string
+	db  *sql.DB
 }
 
 func newSessionFromDatabase(db *sql.DB, sid string) *SessionFromDatabase {
@@ -40,8 +39,6 @@ func newSessionFromDatabase(db *sql.DB, sid string) *SessionFromDatabase {
 
 func (si *SessionFromDatabase) Set(key string, value interface{}) {
 	key = fmt.Sprintf("$.%s", key)
-	si.lock.Lock()
-	defer si.lock.Unlock()
 	result, err := si.db.Exec(
 		`UPDATE sessions SET Sdata = JSON_SET(Sdata, ?, ?)
 		WHERE Sid = ?;`,
