@@ -1,5 +1,6 @@
 # ISOLATI
 [ISOLATI](https://isolati.cn "My Website")
+![](https://isolati.cn/files/1.jpg)
 ## 数据库配置
 ### 数据库信息配置文件
 根目录下的SQL.config.ini存放数据库信息，格式如下：
