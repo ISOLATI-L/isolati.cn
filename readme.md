@@ -1,7 +1,8 @@
 # ISOLATI
 [ISOLATI](https://isolati.cn "My Website")
-## 数据库配置：
-### 根目录下的SQL.config.ini存放数据库信息，格式如下：
+## 数据库配置
+### 数据库信息配置文件
+根目录下的SQL.config.ini存放数据库信息，格式如下：
 ```
 [SQL_Config]
 server   = <数据库IP地址>
@@ -10,8 +11,8 @@ user     = <用户名>
 password = <密码>
 database = <数据库名称>
 ```
-### 目前数据库有3张表：
-#### videos表：
+### 数据库表
+#### videos表
 ```
 CREATE TABLE `videos` (
   `Vid` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -22,7 +23,7 @@ CREATE TABLE `videos` (
   PRIMARY KEY (`Vid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8
 ```
-#### users表（暂未用到）：
+#### users表（暂未用到）
 ```
 CREATE TABLE `users` (
   `Uid` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -32,7 +33,7 @@ CREATE TABLE `users` (
   PRIMARY KEY (`Uid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8
 ```
-#### sessions表（暂未用到）：
+#### sessions表（暂未用到）
 ```
 CREATE TABLE `sessions` (
   `Sid` char(32) NOT NULL,
