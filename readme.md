@@ -23,7 +23,7 @@ CREATE TABLE `videos` (
   PRIMARY KEY (`Vid`)
 )
 ```
-#### users表（暂未用到）
+#### users表（暂未使用）
 ```
 CREATE TABLE `users` (
   `Uid` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -33,7 +33,7 @@ CREATE TABLE `users` (
   PRIMARY KEY (`Uid`)
 )
 ```
-#### sessions表（暂未用到）
+#### sessions表（暂未使用）
 ```
 CREATE TABLE `sessions` (
   `Sid` char(32) NOT NULL,
