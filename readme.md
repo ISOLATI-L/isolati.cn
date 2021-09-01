@@ -3,10 +3,10 @@
 ![](https://isolati.cn/files/1.jpg)
 ## 数据库配置
 ### 数据库信息配置文件
-根目录下的SQL.config.ini存放数据库信息，格式如下：
+根目录下的SQL.config.ini设置数据库信息：
 ```
 [SQL_Config]
-server   = <数据库IP地址>
+server   = <地址>
 port     = <端口>
 user     = <用户名>
 password = <密码>
