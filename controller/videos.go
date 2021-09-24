@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"isolati.cn/database"
+	"isolati.cn/db"
 	"isolati.cn/global"
 )
 
@@ -29,7 +30,7 @@ var numberPattern *regexp.Regexp
 func showVideoPage(w http.ResponseWriter, r *http.Request) {
 	matches := videosPattern.FindStringSubmatch(r.URL.Path)
 	if len(matches) > 0 {
-		row := global.DB.QueryRow(
+		row := db.DB.QueryRow(
 			`SELECT Vid, Vcontent FROM videos
 			WHERE Vid=?;`,
 			matches[1],
@@ -83,7 +84,7 @@ func showVideosPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	// log.Println(page)
-	row := global.DB.QueryRow(`SELECT COUNT(Vid) FROM videos;`)
+	row := db.DB.QueryRow(`SELECT COUNT(Vid) FROM videos;`)
 	var totalPage int64
 	err = row.Scan(
 		&totalPage,
@@ -104,7 +105,7 @@ func showVideosPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var rows *sql.Rows
-	rows, err = global.DB.Query(
+	rows, err = db.DB.Query(
 		`SELECT Vid, Vtitle, Vcover, Vtime FROM videos
 			ORDER BY Vid DESC LIMIT ?, ?;`,
 		(page-1)*MAX_PER_PAGE,

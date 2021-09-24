@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"isolati.cn/db"
 	"isolati.cn/global"
 )
 
@@ -12,7 +13,7 @@ var robotsHandler = http.FileServer(http.Dir(global.ROOT_PATH + "wwwroot"))
 func logReferer(r *http.Request) {
 	userAgent := r.UserAgent()
 	log.Println("Visited robots.txt: ", userAgent)
-	result, err := global.DB.Exec(
+	result, err := db.DB.Exec(
 		`INSERT INTO robots (RuserAgent) VALUES (?);`,
 		userAgent,
 	)

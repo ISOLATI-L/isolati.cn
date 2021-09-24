@@ -1,10 +1,7 @@
 package global
 
 import (
-	"database/sql"
 	"html/template"
-
-	"isolati.cn/session"
 )
 
 const ROOT_PATH = "./"
@@ -36,7 +33,3 @@ const RIGHT_SLIDER = template.HTML(`
 <p>TO DO</p>
 <p>TO DO</p>
 `)
-
-var DB *sql.DB
-
-var UserSession *session.SessionManager
