@@ -11,7 +11,7 @@ var loginTemplate = template.New("login")
 
 func showLoginPage(w http.ResponseWriter, r *http.Request) {
 	loginTemplate.ExecuteTemplate(w, "layout", layoutMsg{
-		PageName: "home",
+		PageName: "login",
 		ContainerData: sliderContainerData{
 			LeftSliderData:  global.LEFT_SLIDER,
 			RightSliderData: global.RIGHT_SLIDER,
