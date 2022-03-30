@@ -54,9 +54,15 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusInternalServerError)
 			}
 		} else {
-			log.Println("Login Success")
-			session.AdminSession.BeginSession(w, r)
-			w.WriteHeader(http.StatusOK)
+			sid := session.UserSession.BeginSession(w, r)
+			err = session.UserSession.Set(sid, "identity", "admin")
+			if err != nil {
+				log.Println("Set Identity Fail:", err.Error())
+				w.WriteHeader(http.StatusInternalServerError)
+			} else {
+				log.Println("Login Success")
+				w.WriteHeader(http.StatusOK)
+			}
 		}
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)

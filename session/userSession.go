@@ -4,10 +4,10 @@ import (
 	"isolati.cn/db"
 )
 
-var AdminSession *SessionManager
+var UserSession *SessionManager
 
 func init() {
-	AdminSession = NewSessionManager(
+	UserSession = NewSessionManager(
 		"user",
 		db.DB,
 		DEFAULT_TIME,

@@ -2,18 +2,17 @@ package session
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"log"
 	"sync"
 )
 
-type SessionFromDatabase struct {
+type sessionFromDatabase struct {
 	sid string
 	db  *sql.DB
 }
 
-func newSessionFromDatabase(db *sql.DB, sid string, maxAge int64) *SessionFromDatabase {
+func newSessionFromDatabase(db *sql.DB, sid string, maxAge int64) *sessionFromDatabase {
 	result, err := db.Exec(
 		`INSERT INTO sessions (Sid, SmaxAge, Sdata)
 		VALUES (?, ?, JSON_OBJECT());`,
@@ -33,13 +32,17 @@ func newSessionFromDatabase(db *sql.DB, sid string, maxAge int64) *SessionFromDa
 		log.Println(result)
 		return nil
 	}
-	return &SessionFromDatabase{
+	return &sessionFromDatabase{
 		sid: sid,
 		db:  db,
 	}
 }
 
-func (si *SessionFromDatabase) UpdateLastAccessedTime() {
+func (si *sessionFromDatabase) getID() string {
+	return si.sid
+}
+
+func (si *sessionFromDatabase) updateLastAccessedTime() {
 	result, err := si.db.Exec(
 		`UPDATE sessions SET SlastAccessedTime = CURRENT_TIMESTAMP
 		WHERE Sid = ?;`,
@@ -59,18 +62,18 @@ func (si *SessionFromDatabase) UpdateLastAccessedTime() {
 	}
 }
 
-type FromDatabase struct {
+type fromDatabase struct {
 	lock sync.Mutex
 	db   *sql.DB
 }
 
-func newFromDatabase(db *sql.DB) *FromDatabase {
-	return &FromDatabase{
+func newFromDatabase(db *sql.DB) *fromDatabase {
+	return &fromDatabase{
 		db: db,
 	}
 }
 
-func (fd *FromDatabase) InitSession(sid string, maxAge int64) (Session, error) {
+func (fd *fromDatabase) initSession(sid string, maxAge int64) (session, error) {
 	fd.lock.Lock()
 	defer fd.lock.Unlock()
 	newSession := newSessionFromDatabase(fd.db, sid, maxAge)
@@ -78,7 +81,7 @@ func (fd *FromDatabase) InitSession(sid string, maxAge int64) (Session, error) {
 	return newSession, nil
 }
 
-func (fd *FromDatabase) GetSession(sid string) Session {
+func (fd *fromDatabase) getSession(sid string) session {
 	row := fd.db.QueryRow(
 		`SELECT Sid FROM sessions
 		WHERE Sid = ?;`,
@@ -91,7 +94,7 @@ func (fd *FromDatabase) GetSession(sid string) Session {
 		return nil
 	}
 	if Sid == sid {
-		return &SessionFromDatabase{
+		return &sessionFromDatabase{
 			sid: sid,
 			db:  fd.db,
 		}
@@ -100,9 +103,9 @@ func (fd *FromDatabase) GetSession(sid string) Session {
 	}
 }
 
-func (fd *FromDatabase) Set(sid string, key string, value interface{}) error {
+func (fd *fromDatabase) set(sid string, key string, value interface{}) error {
 	key = fmt.Sprintf("$.%s", key)
-	result, err := fd.db.Exec(
+	_, err := fd.db.Exec(
 		`UPDATE sessions SET Sdata = JSON_SET(Sdata, ?, ?)
 		WHERE Sid = ?;`,
 		key,
@@ -113,19 +116,10 @@ func (fd *FromDatabase) Set(sid string, key string, value interface{}) error {
 		log.Println(err.Error())
 		return err
 	}
-	affected, err := result.RowsAffected()
-	if err != nil {
-		log.Println(err.Error())
-		return err
-	}
-	if affected == 0 {
-		log.Println(result)
-		return errors.New("affected 0 rows")
-	}
 	return nil
 }
 
-func (fd *FromDatabase) Get(sid string, key string) interface{} {
+func (fd *fromDatabase) get(sid string, key string) interface{} {
 	key = fmt.Sprintf("$.%s", key)
 	row := fd.db.QueryRow(
 		`SELECT JSON_EXTRACT(Sdata, ?) FROM sessions
@@ -142,9 +136,9 @@ func (fd *FromDatabase) Get(sid string, key string) interface{} {
 	return result
 }
 
-func (fd *FromDatabase) Remove(sid string, key string) error {
+func (fd *fromDatabase) remove(sid string, key string) error {
 	key = fmt.Sprintf("$.%s", key)
-	result, err := fd.db.Exec(
+	_, err := fd.db.Exec(
 		`UPDATE sessions SET Sdata = JSON_REMOVE(Sdata, ?)
 		WHERE Sid = ?;`,
 		key,
@@ -154,20 +148,11 @@ func (fd *FromDatabase) Remove(sid string, key string) error {
 		log.Println(err.Error())
 		return err
 	}
-	affected, err := result.RowsAffected()
-	if err != nil {
-		log.Println(err.Error())
-		return err
-	}
-	if affected == 0 {
-		log.Println(result)
-		return errors.New("affected 0 rows")
-	}
 	return nil
 }
 
-func (fd *FromDatabase) DestroySession(sid string) error {
-	result, err := fd.db.Exec(
+func (fd *fromDatabase) destroySession(sid string) error {
+	_, err := fd.db.Exec(
 		`DELETE FROM sessions
 		WHERE Sid = ?;`,
 		sid,
@@ -176,20 +161,11 @@ func (fd *FromDatabase) DestroySession(sid string) error {
 		log.Println(err.Error())
 		return err
 	}
-	affected, err := result.RowsAffected()
-	if err != nil {
-		log.Println(err.Error())
-		return err
-	}
-	if affected == 0 {
-		log.Println(result)
-		return errors.New("affected 0 rows")
-	}
 	return nil
 }
 
 // 已在数据库设置事件自动清除过期sessions
 // 无需在此处进行清除工作
-func (fd *FromDatabase) GCSession() bool {
+func (fd *fromDatabase) gcSession() bool {
 	return false
 }

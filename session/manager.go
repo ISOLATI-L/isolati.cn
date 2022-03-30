@@ -16,7 +16,7 @@ import (
 type SessionManager struct {
 	cookieName string
 	db         *sql.DB
-	storage    Provider
+	storage    provider
 	maxAge     int64
 	httpOnly   bool
 	lock       sync.Mutex
@@ -30,7 +30,7 @@ func NewSessionManager(cookieName string, db *sql.DB, maxAge int64, httpOnly boo
 		maxAge:     maxAge,
 		httpOnly:   httpOnly,
 	}
-	go sessionManager.GC()
+	go sessionManager.gc()
 	return sessionManager
 }
 
@@ -38,17 +38,17 @@ func (m *SessionManager) GetCookieName() string {
 	return m.cookieName
 }
 
-func (m *SessionManager) BeginSession(w http.ResponseWriter, r *http.Request) Session {
+func (m *SessionManager) BeginSession(w http.ResponseWriter, r *http.Request) string {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 	cookie, err := r.Cookie(m.cookieName)
 	if err != nil || cookie.Value == "" {
 		sid := m.randomId()
 		maxAge := m.maxAge
-		session, err := m.storage.InitSession(sid, maxAge)
+		session, err := m.storage.initSession(sid, maxAge)
 		if err != nil {
 			log.Println(err.Error())
-			return nil
+			return ""
 		}
 		uid_cookie := &http.Cookie{
 			Name:     m.cookieName,
@@ -58,16 +58,16 @@ func (m *SessionManager) BeginSession(w http.ResponseWriter, r *http.Request) Se
 			MaxAge:   int(maxAge),
 		}
 		http.SetCookie(w, uid_cookie)
-		return session
+		return session.getID()
 	} else {
 		sid, _ := url.QueryUnescape(cookie.Value)
-		session := m.storage.GetSession(sid)
+		session := m.getSession(sid)
 		if session == nil {
 			maxAge := m.maxAge
-			newSession, err := m.storage.InitSession(sid, maxAge)
+			newSession, err := m.storage.initSession(sid, maxAge)
 			if err != nil {
 				log.Println(err.Error())
-				return nil
+				return ""
 			}
 			newCookie := http.Cookie{
 				Name:     m.cookieName,
@@ -78,22 +78,35 @@ func (m *SessionManager) BeginSession(w http.ResponseWriter, r *http.Request) Se
 				Expires:  time.Now().Add(time.Duration(maxAge)),
 			}
 			http.SetCookie(w, &newCookie)
-			return newSession
+			return newSession.getID()
 		}
-		return session
+		session.updateLastAccessedTime()
+		return session.getID()
 	}
 }
 
-func (m *SessionManager) GetSessionById(sid string) Session {
-	return m.storage.GetSession(sid)
+func (m *SessionManager) getSession(sid string) session {
+	return m.storage.getSession(sid)
 }
 
-func (m *SessionManager) MemoryIsExists(sid string) bool {
-	session := m.storage.GetSession(sid)
+func (m *SessionManager) IsExists(sid string) bool {
+	session := m.getSession(sid)
 	return session != nil
 }
 
-func (m *SessionManager) Destroy(w http.ResponseWriter, r *http.Request) {
+func (m *SessionManager) Set(sid string, key string, value interface{}) error {
+	return m.storage.set(sid, key, value)
+}
+
+func (m *SessionManager) Get(sid string, key string) interface{} {
+	return m.storage.get(sid, key)
+}
+
+func (m *SessionManager) Remove(sid string, key string) error {
+	return m.storage.remove(sid, key)
+}
+
+func (m *SessionManager) EndSession(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie(m.cookieName)
 	if err != nil || cookie.Value == "" {
 		return
@@ -106,7 +119,7 @@ func (m *SessionManager) Destroy(w http.ResponseWriter, r *http.Request) {
 			log.Println(err.Error())
 			return
 		}
-		m.storage.DestroySession(sid)
+		m.storage.destroySession(sid)
 
 		cookie2 := http.Cookie{
 			MaxAge:  0,
@@ -120,35 +133,35 @@ func (m *SessionManager) Destroy(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (m *SessionManager) Update(w http.ResponseWriter, r *http.Request) Session {
+func (m *SessionManager) Update(w http.ResponseWriter, r *http.Request) string {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 
 	cookie, err := r.Cookie(m.cookieName)
 	if err != nil {
-		return nil
+		return ""
 	}
 
 	sid, err := url.QueryUnescape(cookie.Value)
 	if err != nil {
 		log.Println(err.Error())
-		return nil
+		return ""
 	}
 
-	session := m.storage.GetSession(sid)
+	session := m.getSession(sid)
 	if session == nil {
-		return nil
+		return ""
 	}
-	session.UpdateLastAccessedTime()
+	session.updateLastAccessedTime()
 
 	if m.maxAge != int64(cookie.MaxAge) {
 		cookie.MaxAge = int(m.maxAge)
 	}
 	http.SetCookie(w, cookie)
-	return session
+	return session.getID()
 }
 
-func RandomId() string {
+func randomId() string {
 	b := make([]byte, 32)
 	if _, err := io.ReadFull(rand.Reader, b); err != nil {
 		return ""
@@ -160,8 +173,8 @@ func RandomId() string {
 func (m *SessionManager) randomId() string {
 	var randId string
 	for {
-		randId = RandomId()
-		if !m.MemoryIsExists(randId) {
+		randId = randomId()
+		if !m.IsExists(randId) {
 			break
 		}
 	}
@@ -170,10 +183,10 @@ func (m *SessionManager) randomId() string {
 
 const AGE2 = int(60 * time.Second)
 
-func (m *SessionManager) GC() {
+func (m *SessionManager) gc() {
 	m.lock.Lock()
 	defer m.lock.Unlock()
-	if m.storage.GCSession() {
-		time.AfterFunc(time.Duration(AGE2), m.GC)
+	if m.storage.gcSession() {
+		time.AfterFunc(time.Duration(AGE2), m.gc)
 	}
 }
