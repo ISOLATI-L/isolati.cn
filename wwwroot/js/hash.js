@@ -1,9 +1,9 @@
 function hash(s) {
-    return sha1(sha1(sha1(s)))
+    return sha1(sha1(sha1(s)));
 }
 
 function sha1(s) {
-    var data = new Uint8Array(encodeUTF8(s))
+    var data = new Uint8Array(encodeUTF8(s));
     var i, j, t;
     var l = ((data.length + 8) >>> 6 << 4) + 16, s = new Uint8Array(l << 2);
     s.set(new Uint8Array(data.buffer));
@@ -65,5 +65,5 @@ function encodeUTF8(s) {
             r.push(0x80 + (c >> 6 & 0x3F), 0x80 + (c & 0x3F));
         }
     }
-    return r
+    return r;
 }
