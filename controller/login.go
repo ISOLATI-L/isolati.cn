@@ -1,10 +1,15 @@
 package controller
 
 import (
+	"database/sql"
 	"html/template"
+	"io"
+	"log"
 	"net/http"
 
+	"isolati.cn/db"
 	"isolati.cn/global"
+	"isolati.cn/session"
 )
 
 var loginTemplate = template.New("login")
@@ -25,6 +30,34 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		showLoginPage(w, r)
+	case http.MethodPost:
+		data, err := io.ReadAll(r.Body)
+		if err != nil {
+			log.Println("Login Request:", err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			break
+		}
+		log.Println("Login Request:", string(data))
+		row := db.DB.QueryRow(
+			`SELECT md5password FROM admins
+			WHERE md5password=?;`,
+			string(data),
+		)
+		var md5password string
+		err = row.Scan(&md5password)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				log.Println("Error Password")
+				w.WriteHeader(http.StatusUnauthorized)
+			} else {
+				log.Println("Query Fail:", err.Error())
+				w.WriteHeader(http.StatusInternalServerError)
+			}
+		} else {
+			log.Println("Login Success")
+			session.AdminSession.BeginSession(w, r)
+			w.WriteHeader(http.StatusOK)
+		}
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
