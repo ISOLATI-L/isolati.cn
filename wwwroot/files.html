@@ -4,14 +4,14 @@
 
 <!--h1>文件</h1-->
 {{ range .}}
-    {{ $path := .Path }}
-    {{ range .Files }}
-            {{ if eq .Name ".." }}
-            <a class="fileLink" href="{{ $path }}">{{ .Name }}</a>
-            {{ else }}
-            <a class="fileLink" href="{{ $path }}{{ .Name }}">{{ .Name }}</a>
-            {{ end }}
-    {{ end }}
+{{ $path := .Path }}
+{{ range .Files }}
+{{ if eq .Name ".." }}
+<a class="fileLink" href="{{ $path }}">{{ .Name }}</a>
+{{ else }}
+<a class="fileLink" href="{{ $path }}{{ .Name }}">{{ .Name }}</a>
+{{ end }}
+{{ end }}
 {{ end }}
 
 {{ end }}
