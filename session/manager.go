@@ -19,7 +19,7 @@ type SessionManager struct {
 	storage    provider
 	maxAge     int64
 	httpOnly   bool
-	lock       sync.Mutex
+	lock       sync.RWMutex
 }
 
 func NewSessionManager(cookieName string, db *sql.DB, maxAge int64, httpOnly bool) *SessionManager {
@@ -35,6 +35,8 @@ func NewSessionManager(cookieName string, db *sql.DB, maxAge int64, httpOnly boo
 }
 
 func (m *SessionManager) GetCookieName() string {
+	m.lock.RLock()
+	defer m.lock.RUnlock()
 	return m.cookieName
 }
 
@@ -85,28 +87,55 @@ func (m *SessionManager) BeginSession(w http.ResponseWriter, r *http.Request) st
 	}
 }
 
+func (m *SessionManager) GetSession(r *http.Request) string {
+	m.lock.RLock()
+	defer m.lock.RUnlock()
+	cookie, err := r.Cookie(m.cookieName)
+	if err != nil || cookie.Value == "" {
+		return ""
+	} else {
+		sid, _ := url.QueryUnescape(cookie.Value)
+		session := m.getSession(sid)
+		if session == nil {
+			return ""
+		}
+		session.updateLastAccessedTime()
+		return session.getID()
+	}
+}
+
 func (m *SessionManager) getSession(sid string) session {
 	return m.storage.getSession(sid)
 }
 
 func (m *SessionManager) IsExists(sid string) bool {
+	m.lock.RLock()
+	defer m.lock.RUnlock()
 	session := m.getSession(sid)
 	return session != nil
 }
 
 func (m *SessionManager) Set(sid string, key string, value interface{}) error {
+	m.lock.Lock()
+	defer m.lock.Unlock()
 	return m.storage.set(sid, key, value)
 }
 
 func (m *SessionManager) Get(sid string, key string) interface{} {
+	m.lock.RLock()
+	defer m.lock.RUnlock()
 	return m.storage.get(sid, key)
 }
 
 func (m *SessionManager) Remove(sid string, key string) error {
+	m.lock.Lock()
+	defer m.lock.Unlock()
 	return m.storage.remove(sid, key)
 }
 
 func (m *SessionManager) EndSession(w http.ResponseWriter, r *http.Request) {
+	m.lock.Lock()
+	defer m.lock.Unlock()
 	cookie, err := r.Cookie(m.cookieName)
 	if err != nil || cookie.Value == "" {
 		return
@@ -174,7 +203,7 @@ func (m *SessionManager) randomId() string {
 	var randId string
 	for {
 		randId = randomId()
-		if !m.IsExists(randId) {
+		if m.getSession(randId) == nil {
 			break
 		}
 	}

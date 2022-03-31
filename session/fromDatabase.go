@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"sync"
 )
 
 type sessionFromDatabase struct {
@@ -63,8 +62,7 @@ func (si *sessionFromDatabase) updateLastAccessedTime() {
 }
 
 type fromDatabase struct {
-	lock sync.Mutex
-	db   *sql.DB
+	db *sql.DB
 }
 
 func newFromDatabase(db *sql.DB) *fromDatabase {
@@ -74,8 +72,6 @@ func newFromDatabase(db *sql.DB) *fromDatabase {
 }
 
 func (fd *fromDatabase) initSession(sid string, maxAge int64) (session, error) {
-	fd.lock.Lock()
-	defer fd.lock.Unlock()
 	newSession := newSessionFromDatabase(fd.db, sid, maxAge)
 	// log.Println(newSession)
 	return newSession, nil

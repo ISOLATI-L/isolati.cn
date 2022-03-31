@@ -1,13 +1,11 @@
 package session
 
 import (
-	"sync"
 	"time"
 )
 
 type sessionFromMemory struct {
 	sid              string
-	lock             sync.Mutex
 	lastAccessedTime time.Time
 	maxAge           int64
 	data             map[string]interface{}
@@ -26,8 +24,6 @@ func (si *sessionFromMemory) getID() string {
 }
 
 func (si *sessionFromMemory) set(key string, value interface{}) error {
-	si.lock.Lock()
-	defer si.lock.Unlock()
 	si.data[key] = value
 	return nil
 }
@@ -52,7 +48,6 @@ func (si *sessionFromMemory) updateLastAccessedTime() {
 }
 
 type fromMemory struct {
-	lock     sync.Mutex
 	sessions map[string]session
 }
 
@@ -63,8 +58,6 @@ func newFromMemory() *fromMemory {
 }
 
 func (fm *fromMemory) initSession(sid string, maxAge int64) (session, error) {
-	fm.lock.Lock()
-	defer fm.lock.Unlock()
 	newSession := newSessionFromMemory(sid, maxAge)
 	newSession.updateLastAccessedTime()
 	fm.sessions[sid] = newSession
