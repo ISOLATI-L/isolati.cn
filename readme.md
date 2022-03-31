@@ -43,9 +43,9 @@ CREATE TABLE `users` (
   PRIMARY KEY (`Uid`)
 )
 ```
-#### adamins表
+#### admins表
 ```
-CREATE TABLE `adamins` (
+CREATE TABLE `admins` (
   `md5password` char(40) NOT NULL,
   PRIMARY KEY (`md5password`)
 )
