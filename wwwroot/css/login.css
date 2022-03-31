@@ -7,13 +7,13 @@ font{
     height: calc(100vh - 130px);
     box-sizing: border-box;
     justify-content: space-between;
-    padding: calc(50vh - 126px) 0px;
+    padding: calc(50vh - 116px) 0px;
 }
 
 .login{
     display: block;
     width: auto;
-    height: 122px;
+    height: 102px;
     margin: auto;
 }
 
@@ -30,40 +30,40 @@ font{
 }
 
 .login_box{
-    width: 360px;
-    height: 80px;
-    border-radius: 40px;
+    width: 270px;
+    height: 60px;
+    border-radius: 30px;
     background-color: #202020;
 }
 
 .login_txt{
-    font-size: 32px;
+    font-size: 24px;
     border: none;
     background: none;
     outline: none;
-    margin: 16px 0px 16px 16px;
+    margin: 12px 0px 12px 12px;
     color: #FFFFFF;
     display: block;
     float: left;
-    width: 232px;
-    line-height: 48px;
+    width: 174px;
+    line-height: 36px;
     transition: 0.25s ease-in-out;
 }
 
 .login_btn{
-    font-size: 32px;
+    font-size: 24px;
     display: block;
-    width: 96px;
-    height: 48px;
-    border-radius: 40px;
-    margin: 16px 16px 16px 0px;
+    width: 72px;
+    height: 36px;
+    border-radius: 30px;
+    margin: 12px 12px 12px 0px;
     box-sizing: border-box;
     background-color: #7F7F7F;
     float: right;
     color: #FFFFFF;
     text-align: center;
     text-decoration: none;
-    line-height: 48px;
+    line-height: 36px;
     transition: color 0.25s ease-in-out;
 }
 

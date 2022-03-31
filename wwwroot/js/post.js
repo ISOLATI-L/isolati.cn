@@ -1,6 +1,6 @@
 function post(url, data) {
     return new Promise(function (resolve, reject) {
-        var request = new XMLHttpRequest();
+        let request = new XMLHttpRequest();
         request.open('POST', url, true);
         request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         request.onload = function () {

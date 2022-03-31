@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"crypto/rand"
 	"database/sql"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -12,6 +13,12 @@ import (
 	"sync"
 	"time"
 )
+
+var ErrNoCookies error
+
+func init() {
+	ErrNoCookies = errors.New("No Cookies")
+}
 
 type SessionManager struct {
 	cookieName string
@@ -35,9 +42,25 @@ func NewSessionManager(cookieName string, db *sql.DB, maxAge int64, httpOnly boo
 }
 
 func (m *SessionManager) GetCookieName() string {
+	return m.cookieName
+}
+
+func (m *SessionManager) Set(sid string, key string, value interface{}) error {
+	m.lock.Lock()
+	defer m.lock.Unlock()
+	return m.storage.set(sid, key, value)
+}
+
+func (m *SessionManager) Get(sid string, key string) (interface{}, error) {
 	m.lock.RLock()
 	defer m.lock.RUnlock()
-	return m.cookieName
+	return m.storage.get(sid, key)
+}
+
+func (m *SessionManager) Remove(sid string, key string) error {
+	m.lock.Lock()
+	defer m.lock.Unlock()
+	return m.storage.remove(sid, key)
 }
 
 func (m *SessionManager) BeginSession(w http.ResponseWriter, r *http.Request) string {
@@ -87,9 +110,7 @@ func (m *SessionManager) BeginSession(w http.ResponseWriter, r *http.Request) st
 	}
 }
 
-func (m *SessionManager) GetSession(r *http.Request) string {
-	m.lock.RLock()
-	defer m.lock.RUnlock()
+func (m *SessionManager) getSid(r *http.Request) string {
 	cookie, err := r.Cookie(m.cookieName)
 	if err != nil || cookie.Value == "" {
 		return ""
@@ -104,6 +125,39 @@ func (m *SessionManager) GetSession(r *http.Request) string {
 	}
 }
 
+func (m *SessionManager) SetByRequest(r *http.Request, key string, value interface{}) error {
+	m.lock.Lock()
+	defer m.lock.Unlock()
+	sid := m.getSid(r)
+	if sid == "" {
+		return ErrNoCookies
+	} else {
+		return m.storage.set(sid, key, value)
+	}
+}
+
+func (m *SessionManager) GetByRequest(r *http.Request, key string) (interface{}, error) {
+	m.lock.RLock()
+	defer m.lock.RUnlock()
+	sid := m.getSid(r)
+	if sid == "" {
+		return nil, ErrNoCookies
+	} else {
+		return m.storage.get(sid, key)
+	}
+}
+
+func (m *SessionManager) RemoveByRequest(r *http.Request, key string) error {
+	m.lock.Lock()
+	defer m.lock.Unlock()
+	sid := m.getSid(r)
+	if sid == "" {
+		return ErrNoCookies
+	} else {
+		return m.storage.remove(sid, key)
+	}
+}
+
 func (m *SessionManager) getSession(sid string) session {
 	return m.storage.getSession(sid)
 }
@@ -113,24 +167,6 @@ func (m *SessionManager) IsExists(sid string) bool {
 	defer m.lock.RUnlock()
 	session := m.getSession(sid)
 	return session != nil
-}
-
-func (m *SessionManager) Set(sid string, key string, value interface{}) error {
-	m.lock.Lock()
-	defer m.lock.Unlock()
-	return m.storage.set(sid, key, value)
-}
-
-func (m *SessionManager) Get(sid string, key string) interface{} {
-	m.lock.RLock()
-	defer m.lock.RUnlock()
-	return m.storage.get(sid, key)
-}
-
-func (m *SessionManager) Remove(sid string, key string) error {
-	m.lock.Lock()
-	defer m.lock.Unlock()
-	return m.storage.remove(sid, key)
 }
 
 func (m *SessionManager) EndSession(w http.ResponseWriter, r *http.Request) {

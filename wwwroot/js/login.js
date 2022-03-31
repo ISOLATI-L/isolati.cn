@@ -1,23 +1,30 @@
 function loginAdmin() {
-    const password = login_txt.value;
-    const MD5password = hash(password);
+    let password = login_txt.value;
+    let MD5password = hash(password);
     console.log(MD5password);
 
     post("/login", MD5password).then(
         function (res) {
             console.log(res);
+            if (res.status === 200) {
+                window.location.href = '/admin'
+            } else if (res.status === 401) {
+                alert("密码错误！");
+            } else {
+                alert("登陆失败！");
+            }
         },
         function (res) {
             console.log(res);
+            alert("登陆失败！");
         });
     return false;
 }
 
 function login_txt_keypress(e) {
     if (e.keyCode === 13) {
-        return loginAdmin();
+        loginAdmin()
     }
-    return false;
 }
 
 const login_txt = document.querySelector(".login_txt");

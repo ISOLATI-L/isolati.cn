@@ -1,8 +1,15 @@
 package session
 
 import (
+	"errors"
 	"time"
 )
+
+var ErrNoData error
+
+func init() {
+	ErrNoData = errors.New("No Data")
+}
 
 type sessionFromMemory struct {
 	sid              string
@@ -28,8 +35,13 @@ func (si *sessionFromMemory) set(key string, value interface{}) error {
 	return nil
 }
 
-func (si *sessionFromMemory) get(key string) interface{} {
-	return si.data[key]
+func (si *sessionFromMemory) get(key string) (interface{}, error) {
+	ret, ok := si.data[key]
+	if ok {
+		return ret, nil
+	} else {
+		return nil, ErrNoData
+	}
 }
 
 func (si *sessionFromMemory) remove(key string) error {
@@ -73,7 +85,7 @@ func (fm *fromMemory) set(sid string, key string, value interface{}) error {
 	return fm.getSession(sid).(*sessionFromMemory).set(key, value)
 }
 
-func (fm *fromMemory) get(sid string, key string) interface{} {
+func (fm *fromMemory) get(sid string, key string) (interface{}, error) {
 	return fm.getSession(sid).(*sessionFromMemory).get(key)
 }
 
