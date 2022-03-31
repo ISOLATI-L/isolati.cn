@@ -38,21 +38,19 @@ CREATE TABLE `robots` (
 CREATE TABLE `users` (
   `Uid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `Uname` varchar(50) NOT NULL,
-  `Upassword` varchar(16) NOT NULL,
+  `Upassword` char(40) NOT NULL,
   `Uadmin` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`Uid`)
 )
 ```
-#### sessions表（暂未使用）
+#### adamins表（暂未使用）
 ```
-CREATE TABLE `sessions` (
-  `Sid` char(32) NOT NULL,
-  `SlastAccessedTime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `SmaxAge` int(10) unsigned NOT NULL DEFAULT '1800',
-  `Sdata` json NOT NULL,
-  PRIMARY KEY (`Sid`)
+CREATE TABLE `adamins` (
+  `md5password` char(40) NOT NULL,
+  PRIMARY KEY (`md5password`)
 )
 ```
+#### sessions表（暂未使用）
 #### auto_delete_session事件（暂未使用）
 ```
 CREATE EVENT `auto_delete_session` ON SCHEDULE
