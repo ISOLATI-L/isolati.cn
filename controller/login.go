@@ -2,7 +2,6 @@ package controller
 
 import (
 	"database/sql"
-	"encoding/json"
 	"html/template"
 	"io"
 	"log"
@@ -16,31 +15,20 @@ import (
 var loginTemplate = template.New("login")
 
 func showLoginPage(w http.ResponseWriter, r *http.Request) {
-	for {
-		vIdentity, err := session.UserSession.GetByRequest(r, "identity")
-		if err != nil {
-			break
-		}
-		var identity string
-		err = json.Unmarshal(vIdentity, &identity)
-		if err != nil {
-			break
-		}
-		if identity != "admin" {
-			break
-		}
+	isAdmin, _ := isRequestAdmin(r)
+	if isAdmin {
 		http.Redirect(w, r, "/admin", http.StatusSeeOther)
-		return
-	}
-	loginTemplate.ExecuteTemplate(w, "layout", layoutMsg{
-		PageName: "login",
-		ContainerData: sliderContainerData{
-			LeftSliderData:  global.LEFT_SLIDER,
-			RightSliderData: global.RIGHT_SLIDER,
-			ContentData:     nil,
+	} else {
+		loginTemplate.ExecuteTemplate(w, "layout", layoutMsg{
+			PageName: "login",
+			ContainerData: sliderContainerData{
+				LeftSliderData:  global.LEFT_SLIDER,
+				RightSliderData: global.RIGHT_SLIDER,
+				ContentData:     nil,
+			},
 		},
-	},
-	)
+		)
+	}
 }
 
 func postLoginRequest(w http.ResponseWriter, r *http.Request) {

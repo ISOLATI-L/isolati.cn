@@ -4,7 +4,7 @@
 ## 数据库配置
 ### 数据库信息配置文件
 根目录下的SQL.config.ini设置数据库信息：
-```
+```ini
 [SQL_Config]
 server   = <地址>
 port     = <端口>
@@ -14,7 +14,7 @@ database = <数据库名称>
 ```
 ### 数据库设置
 #### videos表
-```
+```sql
 CREATE TABLE `videos` (
   `Vid` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `Vtitle` varchar(100) NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE `videos` (
 )
 ```
 #### robots表
-```
+```sql
 CREATE TABLE `robots` (
   `Rid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `RuserAgent` text NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE `robots` (
 )
 ```
 #### users表（暂未使用）
-```
+```sql
 CREATE TABLE `users` (
   `Uid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `Uname` varchar(50) NOT NULL,
@@ -44,14 +44,14 @@ CREATE TABLE `users` (
 )
 ```
 #### admins表
-```
+```sql
 CREATE TABLE `admins` (
   `md5password` char(40) NOT NULL,
   PRIMARY KEY (`md5password`)
 )
 ```
 #### sessions表（暂未使用）
-```
+```sql
 CREATE TABLE `sessions` (
   `Sid` char(32) NOT NULL,
   `SlastAccessedTime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -61,7 +61,7 @@ CREATE TABLE `sessions` (
 )
 ```
 #### auto_delete_session事件（暂未使用）
-```
+```sql
 CREATE EVENT `auto_delete_session` ON SCHEDULE
 EVERY 1 MINUTE DO
 DELETE FROM
