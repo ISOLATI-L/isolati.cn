@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"isolati.cn/controller"
-	"isolati.cn/global"
 	"isolati.cn/middleware"
 )
 
@@ -25,18 +24,6 @@ func main() {
 		Handler: &timeoutMiddleware,
 	}
 
-	http.Handle(
-		"/css/",
-		http.FileServer(http.Dir(global.ROOT_PATH+"wwwroot")),
-	)
-	http.Handle(
-		"/js/",
-		http.FileServer(http.Dir(global.ROOT_PATH+"wwwroot")),
-	)
-	http.Handle(
-		"/img/",
-		http.FileServer(http.Dir(global.ROOT_PATH+"wwwroot")),
-	)
 	controller.RegisterRoutes()
 
 	err := server.ListenAndServe()

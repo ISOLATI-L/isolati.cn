@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+
+	"isolati.cn/global"
 )
 
 type sliderContainerData struct {
@@ -38,6 +40,26 @@ func redirectToHome(w http.ResponseWriter, r *http.Request) {
 }
 
 func RegisterRoutes() {
+	http.Handle(
+		"/css/",
+		http.FileServer(http.Dir(global.ROOT_PATH+"wwwroot")),
+	)
+	http.Handle(
+		"/js/",
+		http.FileServer(http.Dir(global.ROOT_PATH+"wwwroot")),
+	)
+	http.Handle(
+		"/img/",
+		http.FileServer(http.Dir(global.ROOT_PATH+"wwwroot")),
+	)
+	http.Handle(
+		"/jquery/",
+		http.FileServer(http.Dir(global.ROOT_PATH+"wwwroot")),
+	)
+	http.Handle(
+		"/editormd/",
+		http.FileServer(http.Dir(global.ROOT_PATH+"wwwroot")),
+	)
 	http.HandleFunc("/", redirectToHome)
 	handlerInit()
 	registerHomeRoutes()

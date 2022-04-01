@@ -1,5 +1,7 @@
 SQL.config.ini
 test.http
 wwwroot/img/videos
+wwwroot/jquery
+wwwroot/editormd
 **/*temp*
 *.sql
