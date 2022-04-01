@@ -2,6 +2,7 @@ package controller
 
 import (
 	"database/sql"
+	"encoding/json"
 	"html/template"
 	"io"
 	"log"
@@ -29,7 +30,23 @@ func showLoginPage(w http.ResponseWriter, r *http.Request) {
 func handleLogin(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		showLoginPage(w, r)
+		vIdentity, err := session.UserSession.GetByRequest(r, "identity")
+		if err != nil {
+			showLoginPage(w, r)
+			break
+		}
+		var identity string
+		err = json.Unmarshal(vIdentity, &identity)
+		if err != nil {
+			showLoginPage(w, r)
+			break
+		}
+		if identity != "admin" {
+			showLoginPage(w, r)
+			break
+		}
+		http.Redirect(w, r, "/admin", http.StatusSeeOther)
+		break
 	case http.MethodPost:
 		data, err := io.ReadAll(r.Body)
 		if err != nil {

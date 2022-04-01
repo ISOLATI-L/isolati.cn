@@ -14,8 +14,8 @@ type session interface {
 type provider interface {
 	initSession(sid string, maxAge int64) (session, error)
 	getSession(sid string) session
-	set(sid string, key string, value interface{}) error
-	get(sid string, key string) (interface{}, error)
+	set(sid string, key string, value any) error
+	get(sid string, key string) ([]byte, error)
 	remove(sid string, key string) error
 	destroySession(sid string) error
 	gcSession() bool

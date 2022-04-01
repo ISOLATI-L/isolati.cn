@@ -1,6 +1,7 @@
 package session
 
 import (
+	"encoding/json"
 	"errors"
 	"time"
 )
@@ -15,13 +16,13 @@ type sessionFromMemory struct {
 	sid              string
 	lastAccessedTime time.Time
 	maxAge           int64
-	data             map[string]interface{}
+	data             map[string]any
 }
 
 func newSessionFromMemory(sid string, maxAge int64) *sessionFromMemory {
 	return &sessionFromMemory{
 		sid:    sid,
-		data:   make(map[string]interface{}),
+		data:   make(map[string]any),
 		maxAge: maxAge,
 	}
 }
@@ -30,15 +31,15 @@ func (si *sessionFromMemory) getID() string {
 	return si.sid
 }
 
-func (si *sessionFromMemory) set(key string, value interface{}) error {
+func (si *sessionFromMemory) set(key string, value any) error {
 	si.data[key] = value
 	return nil
 }
 
-func (si *sessionFromMemory) get(key string) (interface{}, error) {
-	ret, ok := si.data[key]
+func (si *sessionFromMemory) get(key string) ([]byte, error) {
+	value, ok := si.data[key]
 	if ok {
-		return ret, nil
+		return json.Marshal(value)
 	} else {
 		return nil, ErrNoData
 	}
@@ -81,11 +82,11 @@ func (fm *fromMemory) getSession(sid string) session {
 	return fm.sessions[sid]
 }
 
-func (fm *fromMemory) set(sid string, key string, value interface{}) error {
+func (fm *fromMemory) set(sid string, key string, value any) error {
 	return fm.getSession(sid).(*sessionFromMemory).set(key, value)
 }
 
-func (fm *fromMemory) get(sid string, key string) (interface{}, error) {
+func (fm *fromMemory) get(sid string, key string) ([]byte, error) {
 	return fm.getSession(sid).(*sessionFromMemory).get(key)
 }
 

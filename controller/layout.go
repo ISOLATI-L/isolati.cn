@@ -7,14 +7,14 @@ import (
 )
 
 type sliderContainerData struct {
-	LeftSliderData  interface{}
-	RightSliderData interface{}
-	ContentData     interface{}
+	LeftSliderData  any
+	RightSliderData any
+	ContentData     any
 }
 
 type layoutMsg struct {
 	PageName      string
-	ContainerData interface{}
+	ContainerData any
 }
 
 var pattern *regexp.Regexp
@@ -46,4 +46,5 @@ func RegisterRoutes() {
 	registerVideosRoutes()
 	registerRobotsRoutes()
 	registerLoginRoutes()
+	registerAdminRoutes()
 }

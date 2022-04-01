@@ -83,7 +83,7 @@ func (fd *fromDatabase) getSession(sid string) session {
 	}
 }
 
-func (fd *fromDatabase) set(sid string, key string, value interface{}) error {
+func (fd *fromDatabase) set(sid string, key string, value any) error {
 	key = "$." + key
 	_, err := fd.db.Exec(
 		`UPDATE sessions SET Sdata = JSON_SET(Sdata, ?, ?)
@@ -98,7 +98,7 @@ func (fd *fromDatabase) set(sid string, key string, value interface{}) error {
 	return nil
 }
 
-func (fd *fromDatabase) get(sid string, key string) (interface{}, error) {
+func (fd *fromDatabase) get(sid string, key string) ([]byte, error) {
 	key = "$." + key
 	row := fd.db.QueryRow(
 		`SELECT JSON_EXTRACT(Sdata, ?) FROM sessions
@@ -106,7 +106,7 @@ func (fd *fromDatabase) get(sid string, key string) (interface{}, error) {
 		key,
 		sid,
 	)
-	var result interface{}
+	result := make([]byte, 0)
 	err := row.Scan(&result)
 	if err != nil {
 		return nil, err

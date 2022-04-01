@@ -45,13 +45,13 @@ func (m *SessionManager) GetCookieName() string {
 	return m.cookieName
 }
 
-func (m *SessionManager) Set(sid string, key string, value interface{}) error {
+func (m *SessionManager) Set(sid string, key string, value any) error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 	return m.storage.set(sid, key, value)
 }
 
-func (m *SessionManager) Get(sid string, key string) (interface{}, error) {
+func (m *SessionManager) Get(sid string, key string) ([]byte, error) {
 	m.lock.RLock()
 	defer m.lock.RUnlock()
 	return m.storage.get(sid, key)
@@ -125,7 +125,7 @@ func (m *SessionManager) getSid(r *http.Request) string {
 	}
 }
 
-func (m *SessionManager) SetByRequest(r *http.Request, key string, value interface{}) error {
+func (m *SessionManager) SetByRequest(r *http.Request, key string, value any) error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 	sid := m.getSid(r)
@@ -136,7 +136,7 @@ func (m *SessionManager) SetByRequest(r *http.Request, key string, value interfa
 	}
 }
 
-func (m *SessionManager) GetByRequest(r *http.Request, key string) (interface{}, error) {
+func (m *SessionManager) GetByRequest(r *http.Request, key string) ([]byte, error) {
 	m.lock.RLock()
 	defer m.lock.RUnlock()
 	sid := m.getSid(r)
