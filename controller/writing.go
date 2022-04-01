@@ -40,7 +40,7 @@ func registerWritingRoutes() {
 	template.Must(
 		writingTemplate.ParseFiles(
 			global.ROOT_PATH+"/wwwroot/layout.html",
-			global.ROOT_PATH+"/wwwroot/sliderContainer.html",
+			// global.ROOT_PATH+"/wwwroot/sliderContainer.html",
 			global.ROOT_PATH+"/wwwroot/writing.html",
 		),
 	)

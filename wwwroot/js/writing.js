@@ -1,7 +1,7 @@
-var editor = editormd("markdown_editor", {
+var markdown_editor = editormd("markdown_editor", {
     width: "100%",
     height: "100%",
-    path: "/editormd/lib/",
+    path: "editormd/lib/",
     theme: "dark",
     previewTheme: "dark",
     editorTheme: "pastel-on-dark",
