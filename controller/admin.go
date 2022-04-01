@@ -12,39 +12,39 @@ import (
 var adminTemplate = template.New("admin")
 
 func showAdminPage(w http.ResponseWriter, r *http.Request) {
-	adminTemplate.ExecuteTemplate(w, "layout", layoutMsg{
-		PageName: "admin",
-		ContainerData: sliderContainerData{
-			LeftSliderData:  global.LEFT_SLIDER,
-			RightSliderData: global.RIGHT_SLIDER,
-			ContentData:     nil,
-		},
-	})
+	vIdentity, err := session.UserSession.GetByRequest(r, "identity")
+	if err != nil {
+		if err == session.ErrNoCookies {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+	} else {
+		var identity string
+		err = json.Unmarshal(vIdentity, &identity)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		} else {
+			if identity != "admin" {
+				http.Redirect(w, r, "/login", http.StatusSeeOther)
+			} else {
+				adminTemplate.ExecuteTemplate(w, "layout", layoutMsg{
+					PageName: "admin",
+					ContainerData: sliderContainerData{
+						LeftSliderData:  global.LEFT_SLIDER,
+						RightSliderData: global.RIGHT_SLIDER,
+						ContentData:     nil,
+					},
+				})
+			}
+		}
+	}
 }
 
 func handleAdmin(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		vIdentity, err := session.UserSession.GetByRequest(r, "identity")
-		if err != nil {
-			if err == session.ErrNoCookies {
-				http.Redirect(w, r, "/login", http.StatusSeeOther)
-			} else {
-				w.WriteHeader(http.StatusInternalServerError)
-			}
-		} else {
-			var identity string
-			err = json.Unmarshal(vIdentity, &identity)
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-			} else {
-				if identity != "admin" {
-					http.Redirect(w, r, "/login", http.StatusSeeOther)
-				} else {
-					showAdminPage(w, r)
-				}
-			}
-		}
+		showAdminPage(w, r)
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
