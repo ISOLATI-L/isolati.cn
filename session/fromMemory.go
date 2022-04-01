@@ -16,13 +16,13 @@ type sessionFromMemory struct {
 	sid              string
 	lastAccessedTime time.Time
 	maxAge           int64
-	data             map[string]any
+	data             map[string][]byte
 }
 
 func newSessionFromMemory(sid string, maxAge int64) *sessionFromMemory {
 	return &sessionFromMemory{
 		sid:    sid,
-		data:   make(map[string]any),
+		data:   make(map[string][]byte),
 		maxAge: maxAge,
 	}
 }
@@ -32,14 +32,15 @@ func (si *sessionFromMemory) getID() string {
 }
 
 func (si *sessionFromMemory) set(key string, value any) error {
-	si.data[key] = value
-	return nil
+	var err error
+	si.data[key], err = json.Marshal(value)
+	return err
 }
 
 func (si *sessionFromMemory) get(key string) ([]byte, error) {
 	value, ok := si.data[key]
 	if ok {
-		return json.Marshal(value)
+		return value, nil
 	} else {
 		return nil, ErrNoData
 	}
