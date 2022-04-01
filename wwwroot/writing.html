@@ -1,18 +1,14 @@
 {{ define "content" }}
 
-<link rel="stylesheet" href="/css/writing.css">
-<link rel="stylesheet" href="/editormd/css/editormd.min.css">
+<link rel="stylesheet" href="css/writing.css">
+<link rel="stylesheet" href="editormd/css/editormd.min.css">
 
-<font>
-    <div class="writing_container">
-        <div id="markdown_editor">
-            <textarea style="display:none;"></textarea>
-        </div>
-    </div>
-</font>
+<div class="writing_container">
+    <div id="markdown_editor"></div>
+</div>
 
-<script type="text/javascript" src="/jquery/jquery-3.6.0.min.js"></script>
-<script type="text/javascript" src="/editormd/editormd.min.js"></script>
-<script type="text/javascript" src="/js/writing.js"></script>
+<script type="text/javascript" src="jquery/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="editormd/editormd.min.js"></script>
+<script type="text/javascript" src="js/writing.js"></script>
 
 {{ end }}

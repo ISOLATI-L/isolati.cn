@@ -1,7 +1,7 @@
 var editor = editormd("markdown_editor", {
     width: "100%",
     height: "100%",
-    path: "editormd/lib/",
+    path: "/editormd/lib/",
     theme: "dark",
     previewTheme: "dark",
     editorTheme: "pastel-on-dark",
@@ -9,10 +9,10 @@ var editor = editormd("markdown_editor", {
     placeholder: "coding...",
     codeFold: true,
     //syncScrolling : false,
-    saveHTMLToTextarea: true,    // 保存 HTML 到 Textarea
+    saveHTMLToTextarea: false,    // 保存 HTML 到 Textarea
     searchReplace: true,
     //watch : false,                // 关闭实时预览
-    htmlDecode: "style,script,iframe|on*",            // 开启 HTML 标签解析，为了安全性，默认不开启    
+    //htmlDecode: "style,script,iframe|on*",            // 开启 HTML 标签解析，为了安全性，默认不开启    
     //toolbar  : false,             //关闭工具栏
     //previewCodeHighlight : false, // 关闭预览 HTML 的代码块高亮，默认开启
     emoji: true,
@@ -26,9 +26,9 @@ var editor = editormd("markdown_editor", {
     //dialogDraggable : false,    // 设置弹出层对话框不可拖动，全局通用，默认为true
     //dialogMaskOpacity : 0.4,    // 设置透明遮罩层的透明度，全局通用，默认值为0.1
     //dialogMaskBgColor : "#000", // 设置透明遮罩层的背景颜色，全局通用，默认为#fff
-    imageUpload: true,
-    imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
-    imageUploadURL: "./php/upload.php",
+    imageUpload: false,
+    //imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+    //imageUploadURL: "./php/upload.php",
     toolbarIcons: [
         "undo",
         "redo",
@@ -70,8 +70,8 @@ var editor = editormd("markdown_editor", {
         "fullscreen",
         "clear",
         "search",
-        "|",
-        "help",
+        // "|",
+        // "help",
         // "info",
     ],
     onload: function () {
