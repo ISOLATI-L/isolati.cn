@@ -1,9 +1,4 @@
-var head = document.getElementsByTagName('head')[0];
-var editormdCss = document.createElement('link');
-editormdCss.href = "editormd/css/editormd.min.css";
-editormdCss.rel = "stylesheet";
-editormdCss.type = "text/css";
-head.appendChild(editormdCss);
+dynamicLoading.css("editormd/css/editormd.min.css")
 
 var markdown_editor = editormd("markdown_editor", {
     width: "100%",
