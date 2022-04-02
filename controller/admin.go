@@ -49,7 +49,7 @@ func handleAdmin(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	} else if !isAdmin {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		http.Redirect(w, r, "/login?ref=\""+r.URL.String()+"\"", http.StatusSeeOther)
 		return
 	}
 

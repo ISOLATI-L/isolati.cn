@@ -7,7 +7,12 @@ function loginAdmin() {
         function (res) {
             console.log(res);
             if (res.status === 200) {
-                window.location.href = '/admin'
+                let referer = window.location.search.substring(1).match("ref=(\"|%22)(.*)(\"|%22)(&|$)")
+                if (referer.length > 4 && referer[2].length > 0) {
+                    window.location.href = referer[2]
+                } else {
+                    window.location.href = '/admin'
+                }
             } else if (res.status === 401) {
                 alert("密码错误！");
             } else {
