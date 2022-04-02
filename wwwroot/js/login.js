@@ -1,6 +1,6 @@
 function loginAdmin() {
-    let password = login_txt.value;
-    let MD5password = hash(password);
+    const password = login_txt.value;
+    const MD5password = hash(password);
     console.log(MD5password);
 
     post("/login", MD5password).then(
