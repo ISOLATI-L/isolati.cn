@@ -49,6 +49,8 @@ func showVideoPage(w http.ResponseWriter, r *http.Request) {
 		// log.Println(video)
 		if video.Vid != 0 {
 			videoTemplate.ExecuteTemplate(w, "layout", layoutMsg{
+				CssFiles: []string{"/css/sliderContainer.css", "/css/video.css"},
+				JsFiles:  []string{""},
 				PageName: "videos",
 				ContainerData: sliderContainerData{
 					LeftSliderData:  global.LEFT_SLIDER,
@@ -149,6 +151,8 @@ func showVideosPage(w http.ResponseWriter, r *http.Request) {
 	// log.Println("Done!")
 
 	videosTemplate.ExecuteTemplate(w, "layout", layoutMsg{
+		CssFiles: []string{"/css/sliderContainer.css", "/css/videos.css"},
+		JsFiles:  []string{""},
 		PageName: "videos",
 		ContainerData: sliderContainerData{
 			LeftSliderData:  global.LEFT_SLIDER,

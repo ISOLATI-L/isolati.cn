@@ -32,6 +32,8 @@ func isRequestAdmin(r *http.Request) (bool, error) {
 
 func showAdminPage(w http.ResponseWriter, r *http.Request) {
 	adminTemplate.ExecuteTemplate(w, "layout", layoutMsg{
+		CssFiles: []string{"/css/sliderContainer.css", "/css/admin.css"},
+		JsFiles:  []string{"/js/carousel.js"},
 		PageName: "admin",
 		ContainerData: sliderContainerData{
 			LeftSliderData:  global.LEFT_SLIDER,

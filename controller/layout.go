@@ -15,6 +15,8 @@ type sliderContainerData struct {
 }
 
 type layoutMsg struct {
+	CssFiles      []string
+	JsFiles       []string
 	PageName      string
 	ContainerData any
 }

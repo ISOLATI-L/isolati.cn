@@ -11,6 +11,8 @@ var writingTemplate = template.New("writing")
 
 func showWritingPage(w http.ResponseWriter, r *http.Request) {
 	writingTemplate.ExecuteTemplate(w, "layout", layoutMsg{
+		CssFiles:      []string{"/css/writing.css", "/editormd/css/editormd.min.css"},
+		JsFiles:       []string{"/jquery/jquery-3.6.0.min.js", "/editormd/editormd.min.js", "/js/writing.js"},
 		PageName:      "writing",
 		ContainerData: nil,
 	})

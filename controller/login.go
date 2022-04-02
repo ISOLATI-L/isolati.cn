@@ -20,6 +20,8 @@ func showLoginPage(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/admin", http.StatusSeeOther)
 	} else {
 		loginTemplate.ExecuteTemplate(w, "layout", layoutMsg{
+			CssFiles: []string{"/css/sliderContainer.css", "/css/login.css"},
+			JsFiles:  []string{"/js/login.js", "/js/hash.js", "/js/post.js"},
 			PageName: "login",
 			ContainerData: sliderContainerData{
 				LeftSliderData:  global.LEFT_SLIDER,

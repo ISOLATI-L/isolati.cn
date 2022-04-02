@@ -11,6 +11,8 @@ var aboutTemplate = template.New("about")
 
 func showAboutPage(w http.ResponseWriter, r *http.Request) {
 	aboutTemplate.ExecuteTemplate(w, "layout", layoutMsg{
+		CssFiles: []string{"/css/sliderContainer.css", "/css/about.css"},
+		JsFiles:  []string{},
 		PageName: "about",
 		ContainerData: sliderContainerData{
 			LeftSliderData:  global.LEFT_SLIDER,

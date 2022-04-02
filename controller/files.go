@@ -77,6 +77,8 @@ func showFilesPage(w http.ResponseWriter, r *http.Request) {
 				})
 		}
 		filesTemplate.ExecuteTemplate(w, "layout", layoutMsg{
+			CssFiles: []string{"/css/sliderContainer.css", "/css/files.css"},
+			JsFiles:  []string{},
 			PageName: "files",
 			ContainerData: sliderContainerData{
 				LeftSliderData:  global.LEFT_SLIDER,

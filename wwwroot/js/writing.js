@@ -1,5 +1,3 @@
-dynamicLoading.css("/editormd/css/editormd.min.css")
-
 let markdown_editor = editormd("markdown_editor", {
     width: "100%",
     height: "100%",

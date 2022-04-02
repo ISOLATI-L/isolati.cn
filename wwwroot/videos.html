@@ -1,14 +1,12 @@
 {{ define "content" }}
 
-<link rel="stylesheet" href="/css/videos.css">
-
 <div class="videoFrame" page="{{ .Page }}">
     <ul class="videoList">
         {{ range .Videos }}
         <li>
             <a href="/videos/{{ .Vid }}">
                 <div class="image">
-                    <img src="{{.Vcover}}"></img>
+                    <img src="{{ .Vcover }}"></img>
                 </div>
                 <div class="text">
                     <div class="title">
