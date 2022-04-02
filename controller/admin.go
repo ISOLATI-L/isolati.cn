@@ -55,7 +55,7 @@ func handleAdmin(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		switch r.URL.Path {
 		case "/admin", "/admin/":
-			w.WriteHeader(http.StatusMethodNotAllowed)
+			showAdminPage(w, r)
 		case "/admin/writing", "/admin/writing/":
 			showWritingPage(w, r)
 		default:
