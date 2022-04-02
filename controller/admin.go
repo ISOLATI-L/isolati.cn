@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"html/template"
 	"net/http"
@@ -49,7 +50,11 @@ func handleAdmin(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	} else if !isAdmin {
-		http.Redirect(w, r, "/login?ref=\""+r.URL.String()+"\"", http.StatusSeeOther)
+		http.Redirect(w,
+			r,
+			"/login?ref=\""+base64.URLEncoding.EncodeToString([]byte(r.URL.String()))+"\"",
+			http.StatusSeeOther,
+		)
 		return
 	}
 

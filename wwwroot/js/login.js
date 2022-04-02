@@ -9,7 +9,9 @@ function loginAdmin() {
             if (res.status === 200) {
                 let referer = window.location.search.substring(1).match("ref=(\"|%22)(.*)(\"|%22)(&|$)")
                 if (referer.length > 4 && referer[2].length > 0) {
-                    window.location.href = referer[2]
+                    referer[2] = referer[2].replace("-", "+")
+                    referer[2] = referer[2].replace("_", "/")
+                    window.location.href = window.atob(referer[2])
                 } else {
                     window.location.href = '/admin'
                 }
