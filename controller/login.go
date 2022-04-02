@@ -23,7 +23,7 @@ func showLoginPage(w http.ResponseWriter, r *http.Request) {
 	if isAdmin {
 		url := "/admin"
 		matches := refSelector.FindStringSubmatch(r.URL.RawQuery)
-		if len(matches) != 0 {
+		if len(matches) > 4 {
 			buf, err := base64.URLEncoding.DecodeString(matches[2])
 			if err == nil {
 				url = string(buf)
