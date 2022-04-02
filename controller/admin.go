@@ -51,24 +51,27 @@ func handleAdmin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	switch r.URL.Path {
-	case "/admin", "/admin/":
-		switch r.Method {
-		case http.MethodGet:
-			showAdminPage(w, r)
-		default:
+	switch r.Method {
+	case http.MethodGet:
+		switch r.URL.Path {
+		case "/admin", "/admin/":
 			w.WriteHeader(http.StatusMethodNotAllowed)
-		}
-	case "/admin/writing", "/admin/writing/":
-		switch r.Method {
-		case http.MethodGet:
+		case "/admin/writing", "/admin/writing/":
 			showWritingPage(w, r)
 		default:
-			w.WriteHeader(http.StatusMethodNotAllowed)
+			w.WriteHeader(http.StatusNotFound)
+		}
+	case http.MethodConnect:
+		sid := session.UserSession.Update(w, r)
+		if len(sid) == 0 {
+			w.WriteHeader(http.StatusUnauthorized)
+		} else {
+			w.WriteHeader(http.StatusOK)
 		}
 	default:
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
+
 }
 
 func registerAdminRoutes() {

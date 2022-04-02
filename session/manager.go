@@ -67,7 +67,7 @@ func (m *SessionManager) BeginSession(w http.ResponseWriter, r *http.Request) st
 	m.lock.Lock()
 	defer m.lock.Unlock()
 	cookie, err := r.Cookie(m.cookieName)
-	if err != nil || cookie.Value == "" {
+	if err != nil || len(cookie.Value) == 0 {
 		sid := m.randomId()
 		maxAge := m.maxAge
 		session, err := m.storage.initSession(sid, maxAge)
@@ -112,7 +112,7 @@ func (m *SessionManager) BeginSession(w http.ResponseWriter, r *http.Request) st
 
 func (m *SessionManager) getSid(r *http.Request) string {
 	cookie, err := r.Cookie(m.cookieName)
-	if err != nil || cookie.Value == "" {
+	if err != nil || len(cookie.Value) == 0 {
 		return ""
 	} else {
 		sid, _ := url.QueryUnescape(cookie.Value)
@@ -129,7 +129,7 @@ func (m *SessionManager) SetByRequest(r *http.Request, key string, value any) er
 	m.lock.Lock()
 	defer m.lock.Unlock()
 	sid := m.getSid(r)
-	if sid == "" {
+	if len(sid) == 0 {
 		return ErrNoCookies
 	} else {
 		return m.storage.set(sid, key, value)
@@ -140,7 +140,7 @@ func (m *SessionManager) GetByRequest(r *http.Request, key string) ([]byte, erro
 	m.lock.RLock()
 	defer m.lock.RUnlock()
 	sid := m.getSid(r)
-	if sid == "" {
+	if len(sid) == 0 {
 		return nil, ErrNoCookies
 	} else {
 		return m.storage.get(sid, key)
@@ -151,7 +151,7 @@ func (m *SessionManager) RemoveByRequest(r *http.Request, key string) error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 	sid := m.getSid(r)
-	if sid == "" {
+	if len(sid) == 0 {
 		return ErrNoCookies
 	} else {
 		return m.storage.remove(sid, key)
@@ -173,7 +173,7 @@ func (m *SessionManager) EndSession(w http.ResponseWriter, r *http.Request) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 	cookie, err := r.Cookie(m.cookieName)
-	if err != nil || cookie.Value == "" {
+	if err != nil || len(cookie.Value) == 0 {
 		return
 	} else {
 		m.lock.Lock()
