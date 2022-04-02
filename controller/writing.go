@@ -11,12 +11,8 @@ var writingTemplate = template.New("writing")
 
 func showWritingPage(w http.ResponseWriter, r *http.Request) {
 	writingTemplate.ExecuteTemplate(w, "layout", layoutMsg{
-		PageName: "writing",
-		ContainerData: sliderContainerData{
-			LeftSliderData:  global.LEFT_SLIDER,
-			RightSliderData: global.RIGHT_SLIDER,
-			ContentData:     nil,
-		},
+		PageName:      "writing",
+		ContainerData: nil,
 	})
 }
 
