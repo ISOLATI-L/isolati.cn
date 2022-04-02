@@ -2,10 +2,12 @@ package controller
 
 import (
 	"database/sql"
+	"encoding/base64"
 	"html/template"
 	"io"
 	"log"
 	"net/http"
+	"regexp"
 
 	"isolati.cn/db"
 	"isolati.cn/global"
@@ -14,10 +16,20 @@ import (
 
 var loginTemplate = template.New("login")
 
+var refSelector *regexp.Regexp
+
 func showLoginPage(w http.ResponseWriter, r *http.Request) {
 	isAdmin, _ := isRequestAdmin(r)
 	if isAdmin {
-		http.Redirect(w, r, "/admin", http.StatusSeeOther)
+		url := "/admin"
+		matches := refSelector.FindStringSubmatch(r.URL.RawQuery)
+		if len(matches) != 0 {
+			buf, err := base64.URLEncoding.DecodeString(matches[2])
+			if err == nil {
+				url = string(buf)
+			}
+		}
+		http.Redirect(w, r, url, http.StatusSeeOther)
 	} else {
 		loginTemplate.ExecuteTemplate(w, "layout", layoutMsg{
 			CssFiles: []string{"/css/sliderContainer.css", "/css/login.css"},
@@ -89,4 +101,12 @@ func registerLoginRoutes() {
 		),
 	)
 	http.HandleFunc("/login", handleLogin)
+
+	var err error
+	refSelector, err = regexp.Compile(
+		"ref=(\"|%22)(.*)(\"|%22)(&|$)",
+	)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
 }
