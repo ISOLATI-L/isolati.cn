@@ -1,10 +1,10 @@
-var dynamicLoading = {
+let dynamicLoading = {
     css: function (path) {
         if (!path || path.length === 0) {
             throw new Error('argument "path" is required !');
         }
-        var head = document.getElementsByTagName('head')[0];
-        var link = document.createElement('link');
+        let head = document.getElementsByTagName('head')[0];
+        let link = document.createElement('link');
         link.href = path;
         link.rel = 'stylesheet';
         link.type = 'text/css';
@@ -14,8 +14,8 @@ var dynamicLoading = {
         if (!path || path.length === 0) {
             throw new Error('argument "path" is required !');
         }
-        var head = document.getElementsByTagName('head')[0];
-        var script = document.createElement('script');
+        let head = document.getElementsByTagName('head')[0];
+        let script = document.createElement('script');
         script.src = path;
         script.type = 'text/javascript';
         head.appendChild(script);

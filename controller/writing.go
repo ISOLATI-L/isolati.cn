@@ -44,5 +44,4 @@ func registerWritingRoutes() {
 			global.ROOT_PATH+"/wwwroot/writing.html",
 		),
 	)
-	http.HandleFunc("/writing", handleWriting)
 }

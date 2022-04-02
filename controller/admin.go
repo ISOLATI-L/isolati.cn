@@ -54,7 +54,15 @@ func handleAdmin(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch r.Method {
 		case http.MethodGet:
-			showAdminPage(w, r)
+			if r.URL.Path == "/admin" ||
+				r.URL.Path == "/admin/" {
+				showAdminPage(w, r)
+			} else if r.URL.Path == "/admin/writing" ||
+				r.URL.Path == "/admin/writing/" {
+				showWritingPage(w, r)
+			} else {
+				w.WriteHeader(http.StatusNotFound)
+			}
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
@@ -69,5 +77,7 @@ func registerAdminRoutes() {
 			global.ROOT_PATH+"/wwwroot/admin.html",
 		),
 	)
+	registerWritingRoutes()
 	http.HandleFunc("/admin", handleAdmin)
+	http.HandleFunc("/admin/", handleAdmin)
 }

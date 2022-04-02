@@ -69,5 +69,4 @@ func RegisterRoutes() {
 	registerRobotsRoutes()
 	registerLoginRoutes()
 	registerAdminRoutes()
-	registerWritingRoutes()
 }

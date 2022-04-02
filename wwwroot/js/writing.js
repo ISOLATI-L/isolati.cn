@@ -1,9 +1,9 @@
-dynamicLoading.css("editormd/css/editormd.min.css")
+dynamicLoading.css("/editormd/css/editormd.min.css")
 
-var markdown_editor = editormd("markdown_editor", {
+let markdown_editor = editormd("markdown_editor", {
     width: "100%",
     height: "100%",
-    path: "editormd/lib/",
+    path: "/editormd/lib/",
     theme: "dark",
     previewTheme: "dark",
     editorTheme: "pastel-on-dark",
