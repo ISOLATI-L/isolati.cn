@@ -132,6 +132,7 @@ func (m *SessionManager) SetByRequest(r *http.Request, key string, value any) er
 	if len(sid) == 0 {
 		return ErrNoCookies
 	} else {
+		m.storage.update(sid)
 		return m.storage.set(sid, key, value)
 	}
 }
@@ -143,6 +144,7 @@ func (m *SessionManager) GetByRequest(r *http.Request, key string) ([]byte, erro
 	if len(sid) == 0 {
 		return nil, ErrNoCookies
 	} else {
+		m.storage.update(sid)
 		return m.storage.get(sid, key)
 	}
 }
@@ -154,6 +156,7 @@ func (m *SessionManager) RemoveByRequest(r *http.Request, key string) error {
 	if len(sid) == 0 {
 		return ErrNoCookies
 	} else {
+		m.storage.update(sid)
 		return m.storage.remove(sid, key)
 	}
 }

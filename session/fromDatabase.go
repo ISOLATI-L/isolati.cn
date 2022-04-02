@@ -128,6 +128,14 @@ func (fd *fromDatabase) remove(sid string, key string) error {
 	return nil
 }
 
+func (fd *fromDatabase) update(sid string) {
+	fd.db.Exec(
+		`UPDATE sessions SET SlastAccessedTime = CURRENT_TIMESTAMP
+		WHERE Sid = ?;`,
+		sid,
+	)
+}
+
 func (fd *fromDatabase) destroySession(sid string) error {
 	_, err := fd.db.Exec(
 		`DELETE FROM sessions

@@ -17,6 +17,7 @@ type provider interface {
 	set(sid string, key string, value any) error
 	get(sid string, key string) ([]byte, error)
 	remove(sid string, key string) error
+	update(sid string)
 	destroySession(sid string) error
 	gcSession() bool
 }

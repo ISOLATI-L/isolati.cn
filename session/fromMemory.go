@@ -95,6 +95,10 @@ func (fm *fromMemory) remove(sid string, key string) error {
 	return fm.getSession(sid).(*sessionFromMemory).remove(key)
 }
 
+func (fm *fromMemory) update(sid string) {
+	fm.getSession(sid).(*sessionFromMemory).lastAccessedTime = time.Now()
+}
+
 func (fm *fromMemory) destroySession(sid string) error {
 	if fm.sessions[sid] != nil {
 		delete(fm.sessions, sid)
