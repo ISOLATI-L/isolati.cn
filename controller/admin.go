@@ -25,11 +25,7 @@ func isRequestAdmin(r *http.Request) (bool, error) {
 		if err != nil {
 			return false, err
 		} else {
-			if identity != "admin" {
-				return false, nil
-			} else {
-				return true, nil
-			}
+			return identity == "admin", nil
 		}
 	}
 }
@@ -49,23 +45,29 @@ func handleAdmin(w http.ResponseWriter, r *http.Request) {
 	isAdmin, err := isRequestAdmin(r)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	} else if !isAdmin {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
-	} else {
+		return
+	}
+
+	switch r.URL.Path {
+	case "/admin", "/admin/":
 		switch r.Method {
 		case http.MethodGet:
-			if r.URL.Path == "/admin" ||
-				r.URL.Path == "/admin/" {
-				showAdminPage(w, r)
-			} else if r.URL.Path == "/admin/writing" ||
-				r.URL.Path == "/admin/writing/" {
-				showWritingPage(w, r)
-			} else {
-				w.WriteHeader(http.StatusNotFound)
-			}
+			showAdminPage(w, r)
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
+	case "/admin/writing", "/admin/writing/":
+		switch r.Method {
+		case http.MethodGet:
+			showWritingPage(w, r)
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	default:
+		w.WriteHeader(http.StatusNotFound)
 	}
 }
 

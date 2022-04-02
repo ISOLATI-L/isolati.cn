@@ -20,22 +20,6 @@ func showWritingPage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func handleWriting(w http.ResponseWriter, r *http.Request) {
-	isAdmin, err := isRequestAdmin(r)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-	} else if !isAdmin {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-	} else {
-		switch r.Method {
-		case http.MethodGet:
-			showWritingPage(w, r)
-		default:
-			w.WriteHeader(http.StatusMethodNotAllowed)
-		}
-	}
-}
-
 func registerWritingRoutes() {
 	template.Must(
 		writingTemplate.ParseFiles(
