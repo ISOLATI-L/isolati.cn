@@ -18,10 +18,13 @@ func main() {
 	timeoutMiddleware := middleware.NewTimeoutMiddleware(
 		&changePrefixMiddleware,
 	)
+	limiterMiddleware := middleware.NewLimiterMiddleware(
+		&timeoutMiddleware,
+	)
 	server := http.Server{
 		// Addr: ":8080",
 		Addr:    "localhost:8080",
-		Handler: &timeoutMiddleware,
+		Handler: &limiterMiddleware,
 	}
 
 	controller.RegisterRoutes()
