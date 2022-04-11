@@ -68,7 +68,7 @@ func handleAdmin(w http.ResponseWriter, r *http.Request) {
 		default:
 			w.WriteHeader(http.StatusNotFound)
 		}
-	case http.MethodConnect:
+	case http.MethodHead:
 		w.WriteHeader(http.StatusOK)
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)

@@ -24,7 +24,7 @@ func (lm *LimiterMiddleware) ServeHTTP(
 ) {
 	ctx := r.Context()
 	var cancel context.CancelFunc
-	ctx, cancel = context.WithTimeout(ctx, 30*time.Second)
+	ctx, cancel = context.WithTimeout(ctx, 500*time.Millisecond)
 	defer cancel()
 	err := limiter.Wait(ctx)
 	if err != nil {
