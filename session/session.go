@@ -23,9 +23,5 @@ type provider interface {
 }
 
 func newProvider(db *sql.DB) provider {
-	if db != nil {
-		return newFromDatabase(db)
-	} else {
-		return newFromMemory()
-	}
+	return newFromDatabase(db)
 }
