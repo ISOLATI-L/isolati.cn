@@ -53,7 +53,16 @@ func postLoginRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Println("Login Request:", string(data))
-	row := db.DB.QueryRow(
+	transaction, err := db.DB.Begin()
+	if err != nil {
+		if transaction != nil {
+			transaction.Rollback()
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err.Error())
+		return
+	}
+	row := transaction.QueryRow(
 		`SELECT md5password FROM admins
 		WHERE md5password=?;`,
 		string(data),
@@ -62,22 +71,25 @@ func postLoginRequest(w http.ResponseWriter, r *http.Request) {
 	err = row.Scan(&md5password)
 	if err != nil {
 		if err == sql.ErrNoRows {
+			transaction.Rollback()
 			log.Println("Error Password")
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
+			transaction.Rollback()
 			log.Println("Query Fail:", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 		}
+		return
+	}
+	transaction.Rollback()
+	sid := session.UserSession.BeginSession(w, r)
+	err = session.UserSession.Set(sid, "identity", "admin")
+	if err != nil {
+		log.Println("Set Identity Fail:", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
 	} else {
-		sid := session.UserSession.BeginSession(w, r)
-		err = session.UserSession.Set(sid, "identity", "admin")
-		if err != nil {
-			log.Println("Set Identity Fail:", err.Error())
-			w.WriteHeader(http.StatusInternalServerError)
-		} else {
-			log.Println("Login Success")
-			w.WriteHeader(http.StatusOK)
-		}
+		log.Println("Login Success")
+		w.WriteHeader(http.StatusOK)
 	}
 }
 

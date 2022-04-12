@@ -13,22 +13,24 @@ var robotsHandler = http.FileServer(http.Dir(global.ROOT_PATH + "wwwroot"))
 func logReferer(r *http.Request) {
 	userAgent := r.UserAgent()
 	log.Println("Visited robots.txt: ", userAgent)
-	result, err := db.DB.Exec(
+	transaction, err := db.DB.Begin()
+	if err != nil {
+		if transaction != nil {
+			transaction.Rollback()
+		}
+		log.Println(err.Error())
+		return
+	}
+	_, err = transaction.Exec(
 		`INSERT INTO robots (RuserAgent) VALUES (?);`,
 		userAgent,
 	)
 	if err != nil {
+		transaction.Rollback()
 		log.Println(err.Error())
 		return
 	}
-	affected, err := result.RowsAffected()
-	if err != nil {
-		log.Println(err.Error())
-		return
-	}
-	if affected == 0 {
-		log.Println(result)
-	}
+	transaction.Commit()
 }
 
 func handleRobots(w http.ResponseWriter, r *http.Request) {

@@ -30,22 +30,32 @@ var numberPattern *regexp.Regexp
 func showVideoPage(w http.ResponseWriter, r *http.Request) {
 	matches := videosPattern.FindStringSubmatch(r.URL.Path)
 	if len(matches) > 0 {
-		row := db.DB.QueryRow(
+		transaction, err := db.DB.Begin()
+		if err != nil {
+			if transaction != nil {
+				transaction.Rollback()
+			}
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Println(err.Error())
+			return
+		}
+		row := transaction.QueryRow(
 			`SELECT Vid, Vcontent FROM videos
 			WHERE Vid=?;`,
 			matches[1],
 		)
 		video := database.Video{}
-		var err error
 		row.Scan(
 			&video.Vid,
 			&video.Vcontent,
 		)
 		if err != nil {
+			transaction.Rollback()
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Println(err.Error())
 			return
 		}
+		transaction.Commit()
 		// log.Println(video)
 		if video.Vid != 0 {
 			videoTemplate.ExecuteTemplate(w, "layout", layoutMsg{
@@ -86,12 +96,22 @@ func showVideosPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	// log.Println(page)
-	row := db.DB.QueryRow(`SELECT COUNT(Vid) FROM videos;`)
+	transaction, err := db.DB.Begin()
+	if err != nil {
+		if transaction != nil {
+			transaction.Rollback()
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err.Error())
+		return
+	}
+	row := transaction.QueryRow(`SELECT COUNT(Vid) FROM videos;`)
 	var totalPage int64
 	err = row.Scan(
 		&totalPage,
 	)
 	if err != nil {
+		transaction.Rollback()
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err.Error())
 		return
@@ -102,18 +122,20 @@ func showVideosPage(w http.ResponseWriter, r *http.Request) {
 	}
 	// log.Println(totalPage)
 	if page < 1 || page > totalPage {
+		transaction.Rollback()
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
 	var rows *sql.Rows
-	rows, err = db.DB.Query(
+	rows, err = transaction.Query(
 		`SELECT Vid, Vtitle, Vcover, Vtime FROM videos
 			ORDER BY Vid DESC LIMIT ?, ?;`,
 		(page-1)*MAX_PER_PAGE,
 		MAX_PER_PAGE,
 	)
 	if err != nil {
+		transaction.Rollback()
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err.Error())
 		return
@@ -135,12 +157,14 @@ func showVideosPage(w http.ResponseWriter, r *http.Request) {
 			&timeStr,
 		)
 		if err != nil {
+			transaction.Rollback()
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Println(err.Error())
 			return
 		}
 		video.Vtime, err = time.ParseInLocation("2006-01-02 15:04:05", timeStr, time.Local)
 		if err != nil {
+			transaction.Rollback()
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Println(err.Error())
 			return
@@ -148,6 +172,7 @@ func showVideosPage(w http.ResponseWriter, r *http.Request) {
 		videos.Videos = append(videos.Videos, video)
 		// log.Println(video)
 	}
+	transaction.Commit()
 	// log.Println("Done!")
 
 	videosTemplate.ExecuteTemplate(w, "layout", layoutMsg{
