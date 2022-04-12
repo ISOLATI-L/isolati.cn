@@ -9,53 +9,36 @@ type sessionFromDatabase struct {
 	db  *sql.DB
 }
 
-func newSessionFromDatabase(db *sql.DB, sid string, maxAge int64) *sessionFromDatabase {
-	transaction, err := db.Begin()
-	if err != nil {
-		if transaction != nil {
-			transaction.Rollback()
-		}
-		return nil
-	}
-	_, err = transaction.Exec(
+func newSessionFromDatabase(db *sql.DB, transaction *sql.Tx, sid string, maxAge int64) (*sessionFromDatabase, error) {
+	_, err := transaction.Exec(
 		`INSERT INTO sessions (Sid, SmaxAge, Sdata)
 		VALUES (?, ?, JSON_OBJECT());`,
 		sid,
 		maxAge,
 	)
 	if err != nil {
-		transaction.Rollback()
-		return nil
+		return nil, err
 	}
-	transaction.Commit()
 	return &sessionFromDatabase{
 		sid: sid,
 		db:  db,
-	}
+	}, nil
 }
 
 func (si *sessionFromDatabase) getID() string {
 	return si.sid
 }
 
-func (si *sessionFromDatabase) updateLastAccessedTime() {
-	transaction, err := si.db.Begin()
-	if err != nil {
-		if transaction != nil {
-			transaction.Rollback()
-		}
-		return
-	}
-	_, err = transaction.Exec(
+func (si *sessionFromDatabase) updateLastAccessedTime(transaction *sql.Tx) error {
+	_, err := transaction.Exec(
 		`UPDATE sessions SET SlastAccessedTime = CURRENT_TIMESTAMP
 		WHERE Sid = ?;`,
 		si.sid,
 	)
 	if err != nil {
-		transaction.Rollback()
-		return
+		return err
 	}
-	transaction.Commit()
+	return nil
 }
 
 type fromDatabase struct {
@@ -68,51 +51,34 @@ func newFromDatabase(db *sql.DB) *fromDatabase {
 	}
 }
 
-func (fd *fromDatabase) initSession(sid string, maxAge int64) (session, error) {
-	newSession := newSessionFromDatabase(fd.db, sid, maxAge)
-	return newSession, nil
+func (fd *fromDatabase) initSession(transaction *sql.Tx, sid string, maxAge int64) (session, error) {
+	newSession, err := newSessionFromDatabase(fd.db, transaction, sid, maxAge)
+	return newSession, err
 }
 
-func (fd *fromDatabase) getSession(sid string) session {
-	transaction, err := fd.db.Begin()
-	if err != nil {
-		if transaction != nil {
-			transaction.Rollback()
-		}
-		return nil
-	}
+func (fd *fromDatabase) getSession(transaction *sql.Tx, sid string) (session, error) {
 	row := transaction.QueryRow(
 		`SELECT Sid FROM sessions
 		WHERE Sid = ?;`,
 		sid,
 	)
 	var Sid string
-	err = row.Scan(&Sid)
+	err := row.Scan(&Sid)
 	if err != nil {
-		transaction.Rollback()
-		return nil
+		return nil, err
 	}
 	if Sid != sid {
-		transaction.Rollback()
-		return nil
+		return nil, err
 	}
-	transaction.Commit()
 	return &sessionFromDatabase{
 		sid: sid,
 		db:  fd.db,
-	}
+	}, nil
 }
 
-func (fd *fromDatabase) set(sid string, key string, value any) error {
+func (fd *fromDatabase) set(transaction *sql.Tx, sid string, key string, value any) error {
 	key = "$." + key
-	transaction, err := fd.db.Begin()
-	if err != nil {
-		if transaction != nil {
-			transaction.Rollback()
-		}
-		return nil
-	}
-	_, err = transaction.Exec(
+	_, err := transaction.Exec(
 		`UPDATE sessions SET Sdata = JSON_SET(Sdata, ?, ?)
 		WHERE Sid = ?;`,
 		key,
@@ -120,22 +86,13 @@ func (fd *fromDatabase) set(sid string, key string, value any) error {
 		sid,
 	)
 	if err != nil {
-		transaction.Rollback()
 		return err
 	}
-	transaction.Commit()
 	return nil
 }
 
-func (fd *fromDatabase) get(sid string, key string) ([]byte, error) {
+func (fd *fromDatabase) get(transaction *sql.Tx, sid string, key string) ([]byte, error) {
 	key = "$." + key
-	transaction, err := fd.db.Begin()
-	if err != nil {
-		if transaction != nil {
-			transaction.Rollback()
-		}
-		return nil, err
-	}
 	row := transaction.QueryRow(
 		`SELECT JSON_EXTRACT(Sdata, ?) FROM sessions
 		WHERE Sid = ?;`,
@@ -143,77 +100,48 @@ func (fd *fromDatabase) get(sid string, key string) ([]byte, error) {
 		sid,
 	)
 	result := make([]byte, 0)
-	err = row.Scan(&result)
+	err := row.Scan(&result)
 	if err != nil {
-		transaction.Rollback()
 		return nil, err
 	}
-	transaction.Commit()
 	return result, nil
 }
 
-func (fd *fromDatabase) remove(sid string, key string) error {
+func (fd *fromDatabase) remove(transaction *sql.Tx, sid string, key string) error {
 	key = "$." + key
-	transaction, err := fd.db.Begin()
-	if err != nil {
-		if transaction != nil {
-			transaction.Rollback()
-		}
-		return err
-	}
-	_, err = transaction.Exec(
+	_, err := transaction.Exec(
 		`UPDATE sessions SET Sdata = JSON_REMOVE(Sdata, ?)
 		WHERE Sid = ?;`,
 		key,
 		sid,
 	)
 	if err != nil {
-		transaction.Rollback()
 		return err
 	}
-	transaction.Commit()
 	return nil
 }
 
-func (fd *fromDatabase) update(sid string) error {
-	transaction, err := fd.db.Begin()
-	if err != nil {
-		if transaction != nil {
-			transaction.Rollback()
-		}
-		return err
-	}
-	_, err = transaction.Exec(
+func (fd *fromDatabase) update(transaction *sql.Tx, sid string) error {
+	_, err := transaction.Exec(
 		`UPDATE sessions SET SlastAccessedTime = CURRENT_TIMESTAMP
 		WHERE Sid = ?;`,
 		sid,
 	)
 	if err != nil {
-		transaction.Rollback()
 		return err
 	}
-	transaction.Commit()
 	return nil
 }
 
-func (fd *fromDatabase) destroySession(sid string) error {
-	transaction, err := fd.db.Begin()
-	if err != nil {
-		if transaction != nil {
-			transaction.Rollback()
-		}
-		return err
-	}
-	_, err = transaction.Exec(
+func (fd *fromDatabase) destroySession(transaction *sql.Tx, sid string) error {
+	_, err := transaction.Exec(
 		`DELETE FROM sessions
 		WHERE Sid = ?;`,
 		sid,
 	)
 	if err != nil {
-		transaction.Rollback()
 		return err
 	}
-	transaction.Commit()
 	return nil
 }
 

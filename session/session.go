@@ -8,17 +8,17 @@ const DEFAULT_TIME int64 = 1800
 
 type session interface {
 	getID() string
-	updateLastAccessedTime()
+	updateLastAccessedTime(transaction *sql.Tx) error
 }
 
 type provider interface {
-	initSession(sid string, maxAge int64) (session, error)
-	getSession(sid string) session
-	set(sid string, key string, value any) error
-	get(sid string, key string) ([]byte, error)
-	remove(sid string, key string) error
-	update(sid string) error
-	destroySession(sid string) error
+	initSession(transaction *sql.Tx, sid string, maxAge int64) (session, error)
+	getSession(transaction *sql.Tx, sid string) (session, error)
+	set(transaction *sql.Tx, sid string, key string, value any) error
+	get(transaction *sql.Tx, sid string, key string) ([]byte, error)
+	remove(transaction *sql.Tx, sid string, key string) error
+	update(transaction *sql.Tx, sid string) error
+	destroySession(transaction *sql.Tx, sid string) error
 	gcSession() bool
 }
 

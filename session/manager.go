@@ -10,7 +10,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"sync"
 	"time"
 )
 
@@ -26,7 +25,6 @@ type SessionManager struct {
 	storage    provider
 	maxAge     int64
 	httpOnly   bool
-	lock       sync.RWMutex
 }
 
 func NewSessionManager(cookieName string, db *sql.DB, maxAge int64, httpOnly bool) *SessionManager {
@@ -41,39 +39,41 @@ func NewSessionManager(cookieName string, db *sql.DB, maxAge int64, httpOnly boo
 	return sessionManager
 }
 
+func (m *SessionManager) BeginTransaction() (*sql.Tx, error) {
+	transaction, err := m.db.Begin()
+	if err != nil {
+		if transaction != nil {
+			transaction.Rollback()
+		}
+		return nil, err
+	}
+	return transaction, nil
+}
+
 func (m *SessionManager) GetCookieName() string {
 	return m.cookieName
 }
 
-func (m *SessionManager) Set(sid string, key string, value any) error {
-	m.lock.Lock()
-	defer m.lock.Unlock()
-	return m.storage.set(sid, key, value)
+func (m *SessionManager) Set(transaction *sql.Tx, sid string, key string, value any) error {
+	return m.storage.set(transaction, sid, key, value)
 }
 
-func (m *SessionManager) Get(sid string, key string) ([]byte, error) {
-	m.lock.RLock()
-	defer m.lock.RUnlock()
-	return m.storage.get(sid, key)
+func (m *SessionManager) Get(transaction *sql.Tx, sid string, key string) ([]byte, error) {
+	return m.storage.get(transaction, sid, key)
 }
 
-func (m *SessionManager) Remove(sid string, key string) error {
-	m.lock.Lock()
-	defer m.lock.Unlock()
-	return m.storage.remove(sid, key)
+func (m *SessionManager) Remove(transaction *sql.Tx, sid string, key string) error {
+	return m.storage.remove(transaction, sid, key)
 }
 
-func (m *SessionManager) BeginSession(w http.ResponseWriter, r *http.Request) string {
-	m.lock.Lock()
-	defer m.lock.Unlock()
+func (m *SessionManager) BeginSession(transaction *sql.Tx, w http.ResponseWriter, r *http.Request) (string, error) {
 	cookie, err := r.Cookie(m.cookieName)
 	if err != nil || len(cookie.Value) == 0 {
-		sid := m.randomId()
+		sid := m.randomId(transaction)
 		maxAge := m.maxAge
-		session, err := m.storage.initSession(sid, maxAge)
+		session, err := m.storage.initSession(transaction, sid, maxAge)
 		if err != nil {
-			log.Println(err.Error())
-			return ""
+			return "", errors.New("Init Session Fail: " + err.Error())
 		}
 		uid_cookie := &http.Cookie{
 			Name:     m.cookieName,
@@ -83,16 +83,15 @@ func (m *SessionManager) BeginSession(w http.ResponseWriter, r *http.Request) st
 			MaxAge:   int(maxAge),
 		}
 		http.SetCookie(w, uid_cookie)
-		return session.getID()
+		return session.getID(), nil
 	} else {
 		sid, _ := url.QueryUnescape(cookie.Value)
-		session := m.getSession(sid)
+		session, _ := m.getSession(transaction, sid)
 		if session == nil {
 			maxAge := m.maxAge
-			newSession, err := m.storage.initSession(sid, maxAge)
+			newSession, err := m.storage.initSession(transaction, sid, maxAge)
 			if err != nil {
-				log.Println(err.Error())
-				return ""
+				return "", errors.New("Init Session Fail: " + err.Error())
 			}
 			newCookie := http.Cookie{
 				Name:     m.cookieName,
@@ -103,130 +102,129 @@ func (m *SessionManager) BeginSession(w http.ResponseWriter, r *http.Request) st
 				Expires:  time.Now().Add(time.Duration(maxAge)),
 			}
 			http.SetCookie(w, &newCookie)
-			return newSession.getID()
+			return newSession.getID(), nil
 		}
-		session.updateLastAccessedTime()
-		return session.getID()
+		session.updateLastAccessedTime(transaction)
+		return session.getID(), nil
 	}
 }
 
-func (m *SessionManager) getSid(r *http.Request) string {
+func (m *SessionManager) getSid(transaction *sql.Tx, r *http.Request) (string, error) {
 	cookie, err := r.Cookie(m.cookieName)
 	if err != nil || len(cookie.Value) == 0 {
-		return ""
+		return "", err
 	} else {
 		sid, _ := url.QueryUnescape(cookie.Value)
-		session := m.getSession(sid)
+		session, err := m.getSession(transaction, sid)
 		if session == nil {
-			return ""
+			return "", ErrNoCookies
 		}
-		session.updateLastAccessedTime()
-		return session.getID()
+		if err != nil {
+			return "", err
+		}
+		session.updateLastAccessedTime(transaction)
+		return session.getID(), nil
 	}
 }
 
-func (m *SessionManager) SetByRequest(r *http.Request, key string, value any) error {
-	m.lock.Lock()
-	defer m.lock.Unlock()
-	sid := m.getSid(r)
+func (m *SessionManager) SetByRequest(transaction *sql.Tx, r *http.Request, key string, value any) error {
+	sid, err := m.getSid(transaction, r)
 	if len(sid) == 0 {
 		return ErrNoCookies
+	} else if err != nil {
+		return err
 	} else {
-		m.storage.update(sid)
-		return m.storage.set(sid, key, value)
+		m.storage.update(transaction, sid)
+		return m.storage.set(transaction, sid, key, value)
 	}
 }
 
-func (m *SessionManager) GetByRequest(r *http.Request, key string) ([]byte, error) {
-	m.lock.RLock()
-	defer m.lock.RUnlock()
-	sid := m.getSid(r)
+func (m *SessionManager) GetByRequest(transaction *sql.Tx, r *http.Request, key string) ([]byte, error) {
+	sid, err := m.getSid(transaction, r)
 	if len(sid) == 0 {
 		return nil, ErrNoCookies
+	} else if err != nil {
+		return nil, err
 	} else {
-		m.storage.update(sid)
-		return m.storage.get(sid, key)
+		m.storage.update(transaction, sid)
+		return m.storage.get(transaction, sid, key)
 	}
 }
 
-func (m *SessionManager) RemoveByRequest(r *http.Request, key string) error {
-	m.lock.Lock()
-	defer m.lock.Unlock()
-	sid := m.getSid(r)
+func (m *SessionManager) RemoveByRequest(transaction *sql.Tx, r *http.Request, key string) error {
+	sid, err := m.getSid(transaction, r)
 	if len(sid) == 0 {
 		return ErrNoCookies
+	} else if err != nil {
+		return err
 	} else {
-		m.storage.update(sid)
-		return m.storage.remove(sid, key)
+		m.storage.update(transaction, sid)
+		return m.storage.remove(transaction, sid, key)
 	}
 }
 
-func (m *SessionManager) getSession(sid string) session {
-	return m.storage.getSession(sid)
+func (m *SessionManager) getSession(transaction *sql.Tx, sid string) (session, error) {
+	return m.storage.getSession(transaction, sid)
 }
 
-func (m *SessionManager) IsExists(sid string) bool {
-	m.lock.RLock()
-	defer m.lock.RUnlock()
-	session := m.getSession(sid)
-	return session != nil
+func (m *SessionManager) IsExists(transaction *sql.Tx, sid string) (bool, error) {
+	session, err := m.getSession(transaction, sid)
+	return session != nil, err
 }
 
-func (m *SessionManager) EndSession(w http.ResponseWriter, r *http.Request) {
-	m.lock.Lock()
-	defer m.lock.Unlock()
+func (m *SessionManager) EndSession(transaction *sql.Tx, w http.ResponseWriter, r *http.Request) error {
 	cookie, err := r.Cookie(m.cookieName)
 	if err != nil || len(cookie.Value) == 0 {
-		return
-	} else {
-		m.lock.Lock()
-		defer m.lock.Unlock()
-
-		sid, err := url.QueryUnescape(cookie.Value)
-		if err != nil {
-			log.Println(err.Error())
-			return
-		}
-		m.storage.destroySession(sid)
-
-		cookie2 := http.Cookie{
-			MaxAge:  0,
-			Name:    m.cookieName,
-			Value:   "",
-			Path:    "/",
-			Expires: time.Now().Add(time.Duration(0)),
-		}
-
-		http.SetCookie(w, &cookie2)
-	}
-}
-
-func (m *SessionManager) Update(w http.ResponseWriter, r *http.Request) string {
-	m.lock.Lock()
-	defer m.lock.Unlock()
-
-	cookie, err := r.Cookie(m.cookieName)
-	if err != nil {
-		return ""
+		return err
 	}
 
 	sid, err := url.QueryUnescape(cookie.Value)
 	if err != nil {
 		log.Println(err.Error())
-		return ""
+		return err
+	}
+	m.storage.destroySession(transaction, sid)
+
+	cookie2 := http.Cookie{
+		MaxAge:  0,
+		Name:    m.cookieName,
+		Value:   "",
+		Path:    "/",
+		Expires: time.Now().Add(time.Duration(0)),
 	}
 
-	session := m.getSession(sid)
-	if session == nil {
-		return ""
+	http.SetCookie(w, &cookie2)
+
+	return nil
+}
+
+func (m *SessionManager) Update(transaction *sql.Tx, w http.ResponseWriter, r *http.Request) (string, error) {
+	cookie, err := r.Cookie(m.cookieName)
+	if err != nil {
+		return "", err
 	}
-	session.updateLastAccessedTime()
+
+	sid, err := url.QueryUnescape(cookie.Value)
+	if err != nil {
+		log.Println(err.Error())
+		return "", err
+	}
+
+	session, err := m.getSession(transaction, sid)
+	if session == nil {
+		return "", ErrNoCookies
+	}
+	if err != nil {
+		log.Println(err.Error())
+		return "", err
+	}
+	session.updateLastAccessedTime(transaction)
 
 	if m.maxAge != int64(cookie.MaxAge) {
 		cookie.MaxAge = int(m.maxAge)
 	}
 	http.SetCookie(w, cookie)
-	return session.getID()
+	return session.getID(), nil
 }
 
 func randomId() string {
@@ -238,11 +236,12 @@ func randomId() string {
 	return randId
 }
 
-func (m *SessionManager) randomId() string {
+func (m *SessionManager) randomId(transaction *sql.Tx) string {
 	var randId string
 	for {
 		randId = randomId()
-		if m.getSession(randId) == nil {
+		session, _ := m.getSession(transaction, randId)
+		if session == nil {
 			break
 		}
 	}
@@ -252,8 +251,6 @@ func (m *SessionManager) randomId() string {
 const AGE2 = int(60 * time.Second)
 
 func (m *SessionManager) gc() {
-	m.lock.Lock()
-	defer m.lock.Unlock()
 	if m.storage.gcSession() {
 		time.AfterFunc(time.Duration(AGE2), m.gc)
 	}

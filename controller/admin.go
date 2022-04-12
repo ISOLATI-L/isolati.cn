@@ -13,19 +13,27 @@ import (
 var adminTemplate = template.New("admin")
 
 func isRequestAdmin(r *http.Request) (bool, error) {
-	vIdentity, err := session.UserSession.GetByRequest(r, "identity")
+	transaction, err := session.UserSession.BeginTransaction()
+	if err != nil {
+		return false, err
+	}
+	vIdentity, err := session.UserSession.GetByRequest(transaction, r, "identity")
 	if err != nil {
 		if err == session.ErrNoCookies {
+			transaction.Commit()
 			return false, nil
 		} else {
+			transaction.Rollback()
 			return false, err
 		}
 	} else {
 		var identity string
 		err = json.Unmarshal(vIdentity, &identity)
 		if err != nil {
+			transaction.Rollback()
 			return false, err
 		} else {
+			transaction.Commit()
 			return identity == "admin", nil
 		}
 	}

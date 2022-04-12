@@ -79,18 +79,34 @@ func postLoginRequest(w http.ResponseWriter, r *http.Request) {
 			log.Println("Query Fail:", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 		}
+		transaction.Rollback()
 		return
 	}
-	transaction.Rollback()
-	sid := session.UserSession.BeginSession(w, r)
-	err = session.UserSession.Set(sid, "identity", "admin")
+	transaction.Commit()
+
+	transaction, err = session.UserSession.BeginTransaction()
 	if err != nil {
+		log.Println("Begin Transaction Fail:", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		transaction.Rollback()
+	}
+	sid, err := session.UserSession.BeginSession(transaction, w, r)
+	if err != nil {
+		transaction.Rollback()
 		log.Println("Set Identity Fail:", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
-	} else {
-		log.Println("Login Success")
-		w.WriteHeader(http.StatusOK)
+		return
 	}
+	err = session.UserSession.Set(transaction, sid, "identity", "admin")
+	if err != nil {
+		transaction.Rollback()
+		log.Println("Set Identity Fail:", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	transaction.Commit()
+	log.Println("Login Success")
+	w.WriteHeader(http.StatusOK)
 }
 
 func handleLogin(w http.ResponseWriter, r *http.Request) {
