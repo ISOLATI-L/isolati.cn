@@ -6,7 +6,7 @@ let markdown_editor = editormd("markdown_editor", {
     previewTheme: "dark",
     editorTheme: "pastel-on-dark",
     markdown: "",
-    placeholder: "coding...",
+    placeholder: "typing...",
     codeFold: true,
     //syncScrolling : false,
     saveHTMLToTextarea: false,    // 保存 HTML 到 Textarea
