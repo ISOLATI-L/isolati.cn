@@ -31,7 +31,7 @@ func NewSessionManager(cookieName string, db *sql.DB, maxAge int64, httpOnly boo
 	sessionManager := &SessionManager{
 		cookieName: cookieName,
 		db:         db,
-		storage:    newProvider(db),
+		storage:    newProvider(),
 		maxAge:     maxAge,
 		httpOnly:   httpOnly,
 	}

@@ -6,10 +6,9 @@ import (
 
 type sessionFromDatabase struct {
 	sid string
-	db  *sql.DB
 }
 
-func newSessionFromDatabase(db *sql.DB, transaction *sql.Tx, sid string, maxAge int64) (*sessionFromDatabase, error) {
+func newSessionFromDatabase(transaction *sql.Tx, sid string, maxAge int64) (*sessionFromDatabase, error) {
 	_, err := transaction.Exec(
 		`INSERT INTO sessions (Sid, SmaxAge, Sdata)
 		VALUES (?, ?, JSON_OBJECT());`,
@@ -21,7 +20,6 @@ func newSessionFromDatabase(db *sql.DB, transaction *sql.Tx, sid string, maxAge 
 	}
 	return &sessionFromDatabase{
 		sid: sid,
-		db:  db,
 	}, nil
 }
 
@@ -41,18 +39,14 @@ func (si *sessionFromDatabase) updateLastAccessedTime(transaction *sql.Tx) error
 	return nil
 }
 
-type fromDatabase struct {
-	db *sql.DB
-}
+type fromDatabase struct{}
 
-func newFromDatabase(db *sql.DB) *fromDatabase {
-	return &fromDatabase{
-		db: db,
-	}
+func newFromDatabase() *fromDatabase {
+	return &fromDatabase{}
 }
 
 func (fd *fromDatabase) initSession(transaction *sql.Tx, sid string, maxAge int64) (session, error) {
-	newSession, err := newSessionFromDatabase(fd.db, transaction, sid, maxAge)
+	newSession, err := newSessionFromDatabase(transaction, sid, maxAge)
 	return newSession, err
 }
 
@@ -72,7 +66,6 @@ func (fd *fromDatabase) getSession(transaction *sql.Tx, sid string) (session, er
 	}
 	return &sessionFromDatabase{
 		sid: sid,
-		db:  fd.db,
 	}, nil
 }
 

@@ -22,6 +22,6 @@ type provider interface {
 	gcSession() bool
 }
 
-func newProvider(db *sql.DB) provider {
-	return newFromDatabase(db)
+func newProvider() provider {
+	return newFromDatabase()
 }
