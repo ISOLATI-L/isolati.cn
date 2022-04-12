@@ -10,22 +10,24 @@ type sessionFromDatabase struct {
 }
 
 func newSessionFromDatabase(db *sql.DB, sid string, maxAge int64) *sessionFromDatabase {
-	result, err := db.Exec(
+	transaction, err := db.Begin()
+	if err != nil {
+		if transaction != nil {
+			transaction.Rollback()
+		}
+		return nil
+	}
+	_, err = transaction.Exec(
 		`INSERT INTO sessions (Sid, SmaxAge, Sdata)
 		VALUES (?, ?, JSON_OBJECT());`,
 		sid,
 		maxAge,
 	)
 	if err != nil {
+		transaction.Rollback()
 		return nil
 	}
-	affected, err := result.RowsAffected()
-	if err != nil {
-		return nil
-	}
-	if affected == 0 {
-		return nil
-	}
+	transaction.Commit()
 	return &sessionFromDatabase{
 		sid: sid,
 		db:  db,
@@ -37,14 +39,23 @@ func (si *sessionFromDatabase) getID() string {
 }
 
 func (si *sessionFromDatabase) updateLastAccessedTime() {
-	_, err := si.db.Exec(
+	transaction, err := si.db.Begin()
+	if err != nil {
+		if transaction != nil {
+			transaction.Rollback()
+		}
+		return
+	}
+	_, err = transaction.Exec(
 		`UPDATE sessions SET SlastAccessedTime = CURRENT_TIMESTAMP
 		WHERE Sid = ?;`,
 		si.sid,
 	)
 	if err != nil {
+		transaction.Rollback()
 		return
 	}
+	transaction.Commit()
 }
 
 type fromDatabase struct {
@@ -63,29 +74,45 @@ func (fd *fromDatabase) initSession(sid string, maxAge int64) (session, error) {
 }
 
 func (fd *fromDatabase) getSession(sid string) session {
-	row := fd.db.QueryRow(
+	transaction, err := fd.db.Begin()
+	if err != nil {
+		if transaction != nil {
+			transaction.Rollback()
+		}
+		return nil
+	}
+	row := transaction.QueryRow(
 		`SELECT Sid FROM sessions
 		WHERE Sid = ?;`,
 		sid,
 	)
 	var Sid string
-	err := row.Scan(&Sid)
+	err = row.Scan(&Sid)
 	if err != nil {
+		transaction.Rollback()
 		return nil
 	}
-	if Sid == sid {
-		return &sessionFromDatabase{
-			sid: sid,
-			db:  fd.db,
-		}
-	} else {
+	if Sid != sid {
+		transaction.Rollback()
 		return nil
+	}
+	transaction.Commit()
+	return &sessionFromDatabase{
+		sid: sid,
+		db:  fd.db,
 	}
 }
 
 func (fd *fromDatabase) set(sid string, key string, value any) error {
 	key = "$." + key
-	_, err := fd.db.Exec(
+	transaction, err := fd.db.Begin()
+	if err != nil {
+		if transaction != nil {
+			transaction.Rollback()
+		}
+		return nil
+	}
+	_, err = transaction.Exec(
 		`UPDATE sessions SET Sdata = JSON_SET(Sdata, ?, ?)
 		WHERE Sid = ?;`,
 		key,
@@ -93,58 +120,100 @@ func (fd *fromDatabase) set(sid string, key string, value any) error {
 		sid,
 	)
 	if err != nil {
+		transaction.Rollback()
 		return err
 	}
+	transaction.Commit()
 	return nil
 }
 
 func (fd *fromDatabase) get(sid string, key string) ([]byte, error) {
 	key = "$." + key
-	row := fd.db.QueryRow(
+	transaction, err := fd.db.Begin()
+	if err != nil {
+		if transaction != nil {
+			transaction.Rollback()
+		}
+		return nil, err
+	}
+	row := transaction.QueryRow(
 		`SELECT JSON_EXTRACT(Sdata, ?) FROM sessions
 		WHERE Sid = ?;`,
 		key,
 		sid,
 	)
 	result := make([]byte, 0)
-	err := row.Scan(&result)
+	err = row.Scan(&result)
 	if err != nil {
+		transaction.Rollback()
 		return nil, err
 	}
+	transaction.Commit()
 	return result, nil
 }
 
 func (fd *fromDatabase) remove(sid string, key string) error {
 	key = "$." + key
-	_, err := fd.db.Exec(
+	transaction, err := fd.db.Begin()
+	if err != nil {
+		if transaction != nil {
+			transaction.Rollback()
+		}
+		return err
+	}
+	_, err = transaction.Exec(
 		`UPDATE sessions SET Sdata = JSON_REMOVE(Sdata, ?)
 		WHERE Sid = ?;`,
 		key,
 		sid,
 	)
 	if err != nil {
+		transaction.Rollback()
 		return err
 	}
+	transaction.Commit()
 	return nil
 }
 
-func (fd *fromDatabase) update(sid string) {
-	fd.db.Exec(
+func (fd *fromDatabase) update(sid string) error {
+	transaction, err := fd.db.Begin()
+	if err != nil {
+		if transaction != nil {
+			transaction.Rollback()
+		}
+		return err
+	}
+	_, err = transaction.Exec(
 		`UPDATE sessions SET SlastAccessedTime = CURRENT_TIMESTAMP
 		WHERE Sid = ?;`,
 		sid,
 	)
+	if err != nil {
+		transaction.Rollback()
+		return err
+	}
+	transaction.Commit()
+	return nil
 }
 
 func (fd *fromDatabase) destroySession(sid string) error {
-	_, err := fd.db.Exec(
+	transaction, err := fd.db.Begin()
+	if err != nil {
+		if transaction != nil {
+			transaction.Rollback()
+		}
+		return err
+	}
+	_, err = transaction.Exec(
 		`DELETE FROM sessions
 		WHERE Sid = ?;`,
 		sid,
 	)
 	if err != nil {
+		transaction.Rollback()
 		return err
 	}
+	transaction.Commit()
 	return nil
 }
 
