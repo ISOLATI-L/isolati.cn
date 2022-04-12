@@ -1,5 +1,5 @@
 # ISOLATI
-[ISOLATI](https://isolati.cn "My Website")<br>
+[ISOLATI](https://isolati.cn "")<br>
 ![](https://isolati.cn/files/1.jpg)
 ## 数据库配置
 ### 数据库信息配置文件
