@@ -12,7 +12,7 @@ user     = <用户名>
 password = <密码>
 database = <数据库名称>
 ```
-### 数据库设置
+### 建表语句
 #### videos表
 ```sql
 CREATE TABLE `videos` (
