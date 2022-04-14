@@ -137,9 +137,3 @@ func (fd *fromDatabase) destroySession(transaction *sql.Tx, sid string) error {
 	}
 	return nil
 }
-
-// 已在数据库设置事件自动清除过期sessions
-// 无需在此处进行清除工作
-func (fd *fromDatabase) gcSession() bool {
-	return false
-}

@@ -19,7 +19,6 @@ type provider interface {
 	remove(transaction *sql.Tx, sid string, key string) error
 	update(transaction *sql.Tx, sid string) error
 	destroySession(transaction *sql.Tx, sid string) error
-	gcSession() bool
 }
 
 func newProvider() provider {

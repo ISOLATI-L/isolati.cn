@@ -35,7 +35,6 @@ func NewSessionManager(cookieName string, db *sql.DB, maxAge int64, httpOnly boo
 		maxAge:     maxAge,
 		httpOnly:   httpOnly,
 	}
-	go sessionManager.gc()
 	return sessionManager
 }
 
@@ -246,12 +245,4 @@ func (m *SessionManager) randomId(transaction *sql.Tx) string {
 		}
 	}
 	return randId
-}
-
-const AGE2 = int(60 * time.Second)
-
-func (m *SessionManager) gc() {
-	if m.storage.gcSession() {
-		time.AfterFunc(time.Duration(AGE2), m.gc)
-	}
 }
