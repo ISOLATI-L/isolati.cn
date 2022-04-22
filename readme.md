@@ -19,9 +19,19 @@ CREATE TABLE `videos` (
   `Vid` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `Vtitle` varchar(100) NOT NULL,
   `Vcontent` text,
-  `Vcover` varchar(100) NOT NULL DEFAULT '',
+  `Vcover` varchar(100) NOT NULL,
   `Vtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`Vid`)
+)
+```
+#### paragraphs表
+```sql
+CREATE TABLE `paragraphs` (
+  `Pid` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `Ptitle` varchar(100) NOT NULL,
+  `Pcontent` varchar(100) NOT NULL,
+  `Ptime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`Pid`)
 )
 ```
 #### robots表
@@ -50,7 +60,7 @@ CREATE TABLE `admins` (
   PRIMARY KEY (`md5password`)
 )
 ```
-#### sessions表（暂未使用）
+#### sessions表
 ```sql
 CREATE TABLE `sessions` (
   `Sid` char(32) NOT NULL,
@@ -60,7 +70,7 @@ CREATE TABLE `sessions` (
   PRIMARY KEY (`Sid`)
 )
 ```
-#### auto_delete_session事件（暂未使用）
+#### auto_delete_session事件
 ```sql
 CREATE EVENT `auto_delete_session` ON SCHEDULE
 EVERY 1 MINUTE DO
