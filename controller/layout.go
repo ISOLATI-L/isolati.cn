@@ -71,4 +71,5 @@ func RegisterRoutes() {
 	registerRobotsRoutes()
 	registerLoginRoutes()
 	registerAdminRoutes()
+	registerParagraphsRoutes()
 }

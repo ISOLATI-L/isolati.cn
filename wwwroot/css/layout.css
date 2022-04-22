@@ -1,35 +1,35 @@
-*{
+* {
     margin: 0px;
     padding: 0px;
 }
 
-:root{
+:root {
     --container-width: 1260px;
     font-family: Helvetica;
 }
 
-html{
+html {
     width: 100%;
     height: auto;
     background-color: #202020;
 }
 
-@media screen and (max-width: 1260px){
-    html{
+@media screen and (max-width: 1260px) {
+    html {
         width: var(--container-width);
     }
 }
 
-body{
+body {
     width: 100%;
     height: auto;
 }
 
-font{
+font {
     color: #FFFFFF;
 }
 
-.preload{
+.preload {
     -webkit-transition: none !important;
     -moz-transition: none !important;
     -ms-transition: none !important;
@@ -37,19 +37,20 @@ font{
     transition: none !important;
 }
 
-.header{
+.header {
     width: 100%;
     height: 60px;
     background-color: #000000;
 }
 
-.header_content{
+.header_content {
     width: var(--container-width);
     height: 60px;
     margin: 0px auto;
 }
 
-.leftBar,.rightBar{
+.leftBar,
+.rightBar {
     width: 160px;
     height: 60px;
     list-style: none;
@@ -57,23 +58,23 @@ font{
     text-align: center;
 }
 
-.leftBar{
+.leftBar {
     float: left;
 }
 
-.rightBar{
+.rightBar {
     float: right;
 }
 
-.navHover{
+.navHover {
     height: 58px !important;
     line-height: 58px !important;
 }
 
-.navHover::after{
+.navHover::after {
     content: "";
     display: block;
-    float:left;
+    float: left;
     width: 160px;
     height: 2px;
     transform-origin: center;
@@ -83,12 +84,12 @@ font{
     transition: transform 0.125s ease-in-out;
 }
 
-.navHover:hover::after{
+.navHover:hover::after {
     transform: scale3d(1, 1, 1);
     transition: transform 0.25s ease-in-out;
 }
 
-.search_box{
+.search_box {
     width: auto;
     height: 40px;
     border-radius: 20px;
@@ -98,13 +99,13 @@ font{
 }
 
 .search_box:hover .search_txt,
-    .search_txt:focus{
+.search_txt:focus {
     width: 120px;
     margin-left: 8px;
 }
 
 .search_box:hover .search_btn,
-    .search_txt:focus~.search_btn{
+.search_txt:focus~.search_btn {
     width: 24px;
     height: 24px;
     border-radius: 12px;
@@ -112,7 +113,7 @@ font{
     margin: 8px 8px 8px 0px;
 }
 
-.search_txt{
+.search_txt {
     border: none;
     background: none;
     outline: none;
@@ -125,7 +126,7 @@ font{
     transition: 0.25s ease-in-out;
 }
 
-.search_btn{
+.search_btn {
     width: 40px;
     height: 40px;
     border-radius: 20px;
@@ -137,24 +138,24 @@ font{
     transition: 0.25s ease-in-out;
 }
 
-.search_btn svg{
+.search_btn svg {
     display: block;
     width: 16px;
     height: 16px;
 }
 
-.active{
+.active {
     border-bottom: 2px solid #FFFFFF !important;
 }
 
-.barBtn{
+.barBtn {
     display: block;
     text-decoration: none;
     font-size: 24px;
     color: #FFFFFF;
 }
 
-.container{
+.container {
     width: var(--container-width);
     height: auto;
     margin: 0px auto;
@@ -165,14 +166,14 @@ font{
     align-items: flex-start;
 }
 
-.footer{
+.footer {
     background-color: #000000;
     width: 100%;
     height: 60px;
     position: relative;
 }
 
-.footer_content{
+.footer_content {
     width: var(--container-width);
     height: 30px;
     margin: 0px auto;
@@ -180,13 +181,13 @@ font{
     line-height: 30px;
 }
 
-.default_link{
+.default_link {
     color: #FFFFFF;
     text-decoration: none;
     transition: color 0.25s ease-in-out;
 }
 
-.default_link:hover{
+.default_link:hover {
     color: #BFBFBF;
     transition: color 0.25s ease-in-out;
 }

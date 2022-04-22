@@ -3,29 +3,29 @@
     --li-grey: #141414;
 }
 
-.videoFrame {
+.paragraphFrame {
     width: 100%;
     height: auto;
 }
 
-.videoList {
+.paragraphList {
     width: 100%;
     height: auto;
     padding: 0px 5px;
     box-sizing: border-box;
 }
 
-.videoList li {
+.paragraphList li {
     width: 100%;
-    height: 180px;
+    height: 90px;
     list-style: none;
     margin: 5px 0px;
     background-color: var(--li-grey);
 }
 
-.videoList li a {
+.paragraphList li a {
     width: 100%;
-    height: 180px;
+    height: 90px;
     display: block;
     text-decoration: none;
     color: #FFFFFF;
@@ -34,32 +34,20 @@
     justify-content: space-between;
 }
 
-.videoList li a .image {
-    width: 240px;
-    height: 180px;
-}
-
-.videoList li a .image img {
-    width: 240px;
-    height: 180px;
-    object-fit: cover;
-}
-
-.videoList li a .text {
-    --text-width: calc(100% - 260px);
-    width: var(--text-width);
-    height: 180px;
+.paragraphList li a .text {
+    width: 100%;
+    height: 90px;
     margin: 0px 10px;
 }
 
-.videoList li a .text .title {
+.paragraphList li a .text .title {
     width: 100%;
-    height: 120px;
+    height: 60px;
     display: flex;
     align-items: center;
 }
 
-.videoList li a .text .title .titleText {
+.paragraphList li a .text .title .titleText {
     width: 100%;
     min-height: 60px;
     height: auto;
@@ -67,14 +55,14 @@
     font-size: 24px;
 }
 
-.videoList li a .text .time {
+.paragraphList li a .text .time {
     width: 100%;
-    height: 60px;
+    height: 30px;
     display: flex;
     align-items: center;
 }
 
-.videoList li a .text .time .timeText {
+.paragraphList li a .text .time .timeText {
     width: 100%;
     height: 30px;
     line-height: 30px;

@@ -1,0 +1,12 @@
+.paragraph {
+    width: 100%;
+    min-height: calc(100vh - 130px);
+    height: auto;
+}
+
+.paragraph #editormd_view {
+    width: 100%;
+    min-height: calc(100vh - 130px);
+    height: auto;
+    box-sizing: border-box;
+}

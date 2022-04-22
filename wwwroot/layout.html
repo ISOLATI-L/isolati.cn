@@ -26,6 +26,14 @@
                     <a class="barBtn" href="/home">ISOLATI</a>
                 </li>
 
+                {{ if eq .PageName "paragraphs" }}
+                <li class="active leftBar navHover">
+                    {{ else }}
+                <li class="leftBar navHover">
+                    {{end}}
+                    <a class="barBtn" href="/paragraphs">文章</a>
+                </li>
+
                 {{ if eq .PageName "videos" }}
                 <li class="active leftBar navHover">
                     {{ else }}

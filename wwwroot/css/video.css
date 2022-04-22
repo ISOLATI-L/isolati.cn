@@ -1,9 +1,9 @@
-.video{
+.video {
     width: 100%;
     height: calc(100vh - 130px);
 }
 
-.video iframe{
+.video iframe {
     width: 100%;
     height: calc(100vh - 130px);
 }

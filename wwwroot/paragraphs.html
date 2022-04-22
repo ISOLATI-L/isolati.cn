@@ -1,0 +1,24 @@
+{{ define "content" }}
+
+<div class="paragraphFrame" page="{{ .Page }}">
+    <ul class="paragraphList">
+        {{ range .Paragraphs }}
+        <li>
+            <a href="/paragraphs/{{ .Pid }}">
+                <div class="text">
+                    <div class="title">
+                        <p class="titleText">{{ .Ptitle }}</p>
+                    </div>
+                    <div class="time">
+                        <p class="timeText">{{ .Ptime.Format "2006-01-02 15:04:05" }}</p>
+                    </div>
+                </div>
+            </a>
+        </li>
+        {{ end }}
+    </ul>
+    <!-- <font>
+        <p>attr(page)</p>
+    </font> -->
+</div>
+{{ end }}

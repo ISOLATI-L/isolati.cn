@@ -1,4 +1,4 @@
-.fileLink{
+.fileLink {
     color: #FFFFFF;
     cursor: pointer;
     text-decoration: underline;
@@ -6,7 +6,7 @@
     white-space: pre;
 }
 
-.fileLink::after{
+.fileLink::after {
     content: "";
     display: block;
 }

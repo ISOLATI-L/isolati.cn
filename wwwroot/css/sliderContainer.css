@@ -1,14 +1,14 @@
-:root{
+:root {
     --content-width: 850px;
 }
 
-.slider{
+.slider {
     width: 200px;
     height: auto;
     background-color: #101010;
 }
 
-.content{
+.content {
     width: var(--content-width);
     min-height: calc(100vh - 130px);
     height: auto;

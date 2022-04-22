@@ -1,8 +1,8 @@
-font{
+font {
     color: #FFFFFF;
 }
 
-.login_container{
+.login_container {
     width: 100%;
     height: calc(100vh - 130px);
     box-sizing: border-box;
@@ -10,33 +10,33 @@ font{
     padding: calc(50vh - 116px) 0px;
 }
 
-.login{
+.login {
     display: block;
     width: auto;
     height: 102px;
     margin: auto;
 }
 
-.login div{
+.login div {
     display: block;
     list-style: none;
     margin: 10px auto;
 }
 
-.loginText{
+.loginText {
     font-size: 24px;
     line-height: 32px;
     text-align: center;
 }
 
-.login_box{
+.login_box {
     width: 270px;
     height: 60px;
     border-radius: 30px;
     background-color: #202020;
 }
 
-.login_txt{
+.login_txt {
     font-size: 24px;
     border: none;
     background: none;
@@ -50,7 +50,7 @@ font{
     transition: 0.25s ease-in-out;
 }
 
-.login_btn{
+.login_btn {
     font-size: 24px;
     display: block;
     width: 72px;
@@ -67,7 +67,7 @@ font{
     transition: color 0.25s ease-in-out;
 }
 
-.login_btn:hover{
+.login_btn:hover {
     color: #BFBFBF;
     transition: color 0.25s ease-in-out;
 }

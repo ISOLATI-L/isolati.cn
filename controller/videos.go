@@ -19,13 +19,13 @@ type VideoList struct {
 	Page   int64
 }
 
-const MAX_PER_PAGE = 10
+const MAX_VIDEOS_PER_PAGE = 10
 
 var videosTemplate = template.New("videos")
 var videoTemplate = template.New("video")
 
 var videosPattern *regexp.Regexp
-var numberPattern *regexp.Regexp
+var vnumberPattern *regexp.Regexp
 
 func showVideoPage(w http.ResponseWriter, r *http.Request) {
 	matches := videosPattern.FindStringSubmatch(r.URL.Path)
@@ -83,7 +83,7 @@ func showVideosPage(w http.ResponseWriter, r *http.Request) {
 	if pageStr == "" {
 		page = 1
 	} else {
-		pageMatches := numberPattern.FindStringSubmatch(pageStr)
+		pageMatches := vnumberPattern.FindStringSubmatch(pageStr)
 		if len(pageMatches) > 0 {
 			page, err = strconv.ParseInt(pageMatches[1], 10, 64)
 			if err != nil {
@@ -116,7 +116,7 @@ func showVideosPage(w http.ResponseWriter, r *http.Request) {
 		log.Println(err.Error())
 		return
 	}
-	totalPage = (totalPage + MAX_PER_PAGE - 1) / MAX_PER_PAGE
+	totalPage = (totalPage + MAX_VIDEOS_PER_PAGE - 1) / MAX_VIDEOS_PER_PAGE
 	if totalPage == 0 {
 		totalPage = 1
 	}
@@ -131,8 +131,8 @@ func showVideosPage(w http.ResponseWriter, r *http.Request) {
 	rows, err = transaction.Query(
 		`SELECT Vid, Vtitle, Vcover, Vtime FROM videos
 			ORDER BY Vid DESC LIMIT ?, ?;`,
-		(page-1)*MAX_PER_PAGE,
-		MAX_PER_PAGE,
+		(page-1)*MAX_VIDEOS_PER_PAGE,
+		MAX_VIDEOS_PER_PAGE,
 	)
 	if err != nil {
 		transaction.Rollback()
@@ -207,7 +207,7 @@ func registerVideosRoutes() {
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	numberPattern, err = regexp.Compile(`^(\d+)$`)
+	vnumberPattern, err = regexp.Compile(`^(\d+)$`)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}

@@ -12,10 +12,11 @@ let markdown_editor = editormd("markdown_editor", {
     saveHTMLToTextarea: false,    // 保存 HTML 到 Textarea
     searchReplace: true,
     //watch : false,                // 关闭实时预览
-    //htmlDecode: "style,script,iframe|on*",            // 开启 HTML 标签解析，为了安全性，默认不开启    
+    //htmlDecode: "style,script,iframe|on*",            // 开启 HTML 标签解析，为了安全性，默认不开启
+    htmlDecode: true,
     //toolbar  : false,             //关闭工具栏
     //previewCodeHighlight : false, // 关闭预览 HTML 的代码块高亮，默认开启
-    emoji: true,
+    emoji: false,
     taskList: true,
     tocm: true,         // Using [TOCM]
     tex: true,                   // 开启科学公式TeX语言支持，默认关闭
