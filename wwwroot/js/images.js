@@ -19,7 +19,7 @@ function loadImg() {
         if (nImg == imgData.length) {
             if (!requesting) {
                 requesting = true;
-                get("/images/api/list?s=" + String(nImg)).then(
+                get("/images/api/list?s=" + String(nImg) + "&n=10").then(
                     function (res) {
                         if (res.status === 200) {
                             let data = JSON.parse(res.response);
