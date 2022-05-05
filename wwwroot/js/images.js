@@ -1,4 +1,4 @@
-let data = [];
+let imgData = [];
 const cols = 3;
 let arrH = [-5, -5, -5];
 let nImg = 0;
@@ -9,7 +9,7 @@ window.onload = function () {
     get("/images/api/list").then(
         function (res) {
             if (res.status === 200) {
-                data = JSON.parse(res.response);
+                imgData = JSON.parse(res.response);
                 // console.log(data);
                 loadImg();
             }
@@ -28,11 +28,11 @@ function loadImg() {
         let aElement = document.createElement("a");
         aElement.className = "imageBox";
         aElement.style.display = "none";
-        aElement.href = "/images/" + data[nImg];
+        aElement.href = "/images/" + imgData[nImg];
         oParent.appendChild(aElement);
         let imgElement = document.createElement("img");
         imgElement.className = "image";
-        imgElement.src = "/images/" + data[nImg];
+        imgElement.src = "/images/" + imgData[nImg];
         imgElement.onload = function () {
             waterfall(aElement, imgElement);
             loadImg()
@@ -63,7 +63,7 @@ function getIndex(arr, val) {
 }
 
 function checkScroll() {
-    if (nImg == data.length) {
+    if (nImg == imgData.length) {
         return false
     }
     let imgBox = document.querySelectorAll('.imageBox');
@@ -73,8 +73,5 @@ function checkScroll() {
     let minH = Math.min.apply(null, arrH);
     let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
     let documentHeight = document.documentElement.clientHeight;
-    console.log(minH);
-    console.log(scrollTop);
-    console.log(documentHeight);
     return minH < scrollTop + documentHeight;
 }
