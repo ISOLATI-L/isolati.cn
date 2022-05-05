@@ -15,32 +15,30 @@ window.onload = function () {
 };
 
 function loadImg() {
-    if (checkScroll()) {
+    if (!requesting && checkScroll()) {
         if (nImg == imgData.length) {
-            if (!requesting) {
-                requesting = true;
-                get("/images/api/list?s=" + String(nImg) + "&n=10").then(
-                    function (res) {
-                        if (res.status === 200) {
-                            let data = JSON.parse(res.response);
-                            if (data.length > 0) {
-                                imgData = imgData.concat(data);
-                                addElement();
-                            } else {
-                                end = true;
-                            }
+            requesting = true;
+            get("/images/api/list?s=" + String(nImg) + "&n=10").then(
+                function (res) {
+                    if (res.status === 200) {
+                        let data = JSON.parse(res.response);
+                        if (data.length > 0) {
+                            imgData = imgData.concat(data);
+                            addElement();
                         } else {
                             end = true;
                         }
-                        requesting = false;
-                    },
-                    function (res) {
-                        console.log(res);
+                    } else {
                         end = true;
-                        requesting = false;
                     }
-                );
-            }
+                    requesting = false;
+                },
+                function (res) {
+                    console.log(res);
+                    end = true;
+                    requesting = false;
+                }
+            );
         } else {
             addElement();
         }
