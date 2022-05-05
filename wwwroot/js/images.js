@@ -50,6 +50,7 @@ function loadImg() {
 function addElement() {
     let aElement = document.createElement("a");
     aElement.className = "imageBox";
+    aElement.target = "_blank";
     aElement.style.display = "none";
     aElement.href = "/images/" + imgData[nImg];
     oParent.appendChild(aElement);

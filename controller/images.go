@@ -9,7 +9,6 @@ import (
 	"regexp"
 	"strconv"
 
-	"isolati.cn/database"
 	"isolati.cn/db"
 	"isolati.cn/global"
 )
@@ -22,38 +21,7 @@ var inumberPattern *regexp.Regexp
 func showImagePage(w http.ResponseWriter, r *http.Request) {
 	matches := imagesPattern.FindStringSubmatch(r.URL.Path)
 	if len(matches) > 0 {
-		transaction, err := db.DB.Begin()
-		if err != nil {
-			if transaction != nil {
-				transaction.Rollback()
-			}
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Println(err.Error())
-			return
-		}
-		row := transaction.QueryRow(
-			`SELECT Iid, Iname FROM images
-			WHERE Iid=?;`,
-			matches[1],
-		)
-		image := database.Image{}
-		row.Scan(
-			&image.Iid,
-			&image.Iname,
-		)
-		if err != nil {
-			transaction.Rollback()
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Println(err.Error())
-			return
-		}
-		transaction.Commit()
-		// log.Println(image)
-		if image.Iid != 0 {
-			http.ServeFile(w, r, global.ROOT_PATH+"/wwwroot/images/"+image.Iname)
-		} else {
-			w.WriteHeader(http.StatusNotFound)
-		}
+		http.ServeFile(w, r, global.ROOT_PATH+"/wwwroot/images/"+matches[1])
 	} else {
 		w.WriteHeader(http.StatusNotFound)
 	}
@@ -119,7 +87,7 @@ func apiGetList(w http.ResponseWriter, r *http.Request) {
 	}
 	var rows *sql.Rows
 	rows, err = transaction.Query(
-		`SELECT Iid FROM images
+		`SELECT Iname FROM images
 			ORDER BY Iid DESC LIMIT ?, ?;`,
 		s,
 		n,
@@ -172,7 +140,7 @@ func handleImages(w http.ResponseWriter, r *http.Request) {
 
 func registerImagesRoutes() {
 	var err error
-	imagesPattern, err = regexp.Compile(`/images/(\d+)$`)
+	imagesPattern, err = regexp.Compile(`/images/(.+)$`)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
