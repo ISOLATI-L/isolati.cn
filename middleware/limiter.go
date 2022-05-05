@@ -11,7 +11,7 @@ import (
 var limiter *rate.Limiter
 
 func init() {
-	limiter = rate.NewLimiter(10, 20)
+	limiter = rate.NewLimiter(10, 100)
 }
 
 type LimiterMiddleware struct {
