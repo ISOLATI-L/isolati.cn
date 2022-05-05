@@ -72,4 +72,5 @@ func RegisterRoutes() {
 	registerLoginRoutes()
 	registerAdminRoutes()
 	registerParagraphsRoutes()
+	registerImagesRoutes()
 }

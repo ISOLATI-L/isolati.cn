@@ -1,0 +1,11 @@
+.images {
+    width: 100%;
+    position: relative;
+}
+
+.imageBox,
+.image {
+    width: 280px;
+    height: auto;
+    position: absolute;
+}

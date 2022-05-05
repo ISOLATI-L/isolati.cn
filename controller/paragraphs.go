@@ -58,7 +58,7 @@ func showParagraphPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		transaction.Commit()
-		// log.Println(video)
+		// log.Println(paragraph)
 		if paragraph.Pid != 0 {
 			f, err := os.OpenFile(
 				global.ROOT_PATH+"wwwroot"+paragraph.Pcontent,
@@ -211,7 +211,7 @@ func showParagraphsPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		paragraphs.Paragraphs = append(paragraphs.Paragraphs, paragraph)
-		// log.Println(video)
+		// log.Println(paragraphs)
 	}
 	transaction.Commit()
 	// log.Println("Done!")
@@ -231,10 +231,10 @@ func showParagraphsPage(w http.ResponseWriter, r *http.Request) {
 func handleParagraphs(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		if r.URL.Path == "/paragraphs" ||
-			r.URL.Path == "/paragraphs/" {
+		switch r.URL.Path {
+		case "/paragraphs", "/paragraphs/":
 			showParagraphsPage(w, r)
-		} else {
+		default:
 			showParagraphPage(w, r)
 		}
 	default:
