@@ -93,14 +93,14 @@ func apiGetList(w http.ResponseWriter, r *http.Request) {
 	}
 	nStr := r.URL.Query().Get("n")
 	if nStr == "" {
-		n = 10
+		n = -1
 	} else {
 		nMatches := pnumberPattern.FindStringSubmatch(nStr)
 		if len(nMatches) > 0 {
 			n, err = strconv.ParseInt(nMatches[1], 10, 64)
 			if err != nil {
 				log.Println(err.Error())
-				n = 10
+				n = -1
 			}
 		} else {
 			w.WriteHeader(http.StatusNotFound)
