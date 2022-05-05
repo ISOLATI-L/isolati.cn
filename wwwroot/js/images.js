@@ -4,42 +4,64 @@ let arrH = [-5, -5, -5];
 let nImg = 0;
 let loadedImg = 0;
 let oParent = document.querySelector(".images");
+let end = false;
+let requesting = false;
 
 window.onload = function () {
-    get("/images/api/list").then(
-        function (res) {
-            if (res.status === 200) {
-                imgData = JSON.parse(res.response);
-                // console.log(data);
-                loadImg();
-            }
-        },
-        function (res) {
-            console.log(res);
-        }
-    );
     window.onscroll = function () {
         loadImg();
     }
+    loadImg();
 };
 
 function loadImg() {
     if (checkScroll()) {
-        let aElement = document.createElement("a");
-        aElement.className = "imageBox";
-        aElement.style.display = "none";
-        aElement.href = "/images/" + imgData[nImg];
-        oParent.appendChild(aElement);
-        let imgElement = document.createElement("img");
-        imgElement.className = "image";
-        imgElement.src = "/images/" + imgData[nImg];
-        imgElement.onload = function () {
-            waterfall(aElement, imgElement);
-            loadImg()
+        if (nImg == imgData.length) {
+            if (!requesting) {
+                requesting = true;
+                get("/images/api/list?s=" + String(nImg)).then(
+                    function (res) {
+                        if (res.status === 200) {
+                            let data = JSON.parse(res.response);
+                            if (data.length > 0) {
+                                imgData = imgData.concat(data);
+                                addElement();
+                            } else {
+                                end = true;
+                            }
+                        } else {
+                            end = true;
+                        }
+                        requesting = false;
+                    },
+                    function (res) {
+                        console.log(res);
+                        end = true;
+                        requesting = false;
+                    }
+                );
+            }
+        } else {
+            addElement();
         }
-        aElement.appendChild(imgElement);
-        nImg++;
     }
+}
+
+function addElement() {
+    let aElement = document.createElement("a");
+    aElement.className = "imageBox";
+    aElement.style.display = "none";
+    aElement.href = "/images/" + imgData[nImg];
+    oParent.appendChild(aElement);
+    let imgElement = document.createElement("img");
+    imgElement.className = "image";
+    imgElement.src = "/images/" + imgData[nImg];
+    imgElement.onload = function () {
+        waterfall(aElement, imgElement);
+        loadImg()
+    }
+    aElement.appendChild(imgElement);
+    nImg++;
 }
 
 function waterfall(aElement, imgElement) {
@@ -63,7 +85,7 @@ function getIndex(arr, val) {
 }
 
 function checkScroll() {
-    if (nImg == imgData.length) {
+    if (end) {
         return false
     }
     let imgBox = document.querySelectorAll('.imageBox');

@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
 
 	"isolati.cn/database"
 	"isolati.cn/db"
@@ -16,6 +17,7 @@ import (
 var imagesTemplate = template.New("images")
 
 var imagesPattern *regexp.Regexp
+var inumberPattern *regexp.Regexp
 
 func showImagePage(w http.ResponseWriter, r *http.Request) {
 	matches := imagesPattern.FindStringSubmatch(r.URL.Path)
@@ -71,7 +73,41 @@ func showImagesPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiGetList(w http.ResponseWriter, r *http.Request) {
+	var s, n int64
 	var err error
+	sStr := r.URL.Query().Get("s")
+	if sStr == "" {
+		s = 0
+	} else {
+		sMatches := pnumberPattern.FindStringSubmatch(sStr)
+		if len(sMatches) > 0 {
+			s, err = strconv.ParseInt(sMatches[1], 10, 64)
+			if err != nil {
+				log.Println(err.Error())
+				s = 0
+			}
+		} else {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+	}
+	nStr := r.URL.Query().Get("n")
+	if nStr == "" {
+		n = 10
+	} else {
+		nMatches := pnumberPattern.FindStringSubmatch(nStr)
+		if len(nMatches) > 0 {
+			n, err = strconv.ParseInt(nMatches[1], 10, 64)
+			if err != nil {
+				log.Println(err.Error())
+				n = 10
+			}
+		} else {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+	}
+
 	transaction, err := db.DB.Begin()
 	if err != nil {
 		if transaction != nil {
@@ -84,7 +120,9 @@ func apiGetList(w http.ResponseWriter, r *http.Request) {
 	var rows *sql.Rows
 	rows, err = transaction.Query(
 		`SELECT Iid FROM images
-			ORDER BY Iid DESC;`,
+			ORDER BY Iid DESC LIMIT ?, ?;`,
+		s,
+		n,
 	)
 	if err != nil {
 		transaction.Rollback()
@@ -135,6 +173,10 @@ func handleImages(w http.ResponseWriter, r *http.Request) {
 func registerImagesRoutes() {
 	var err error
 	imagesPattern, err = regexp.Compile(`/images/(\d+)$`)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	inumberPattern, err = regexp.Compile(`^(\d+)$`)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
