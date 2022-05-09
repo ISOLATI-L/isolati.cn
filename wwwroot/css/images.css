@@ -3,9 +3,12 @@
     position: relative;
 }
 
+.imageBox {
+    position: absolute;
+}
+
 .imageBox,
 .image {
     width: 280px;
     height: auto;
-    position: absolute;
 }

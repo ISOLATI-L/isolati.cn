@@ -1,0 +1,32 @@
+{{ define "content" }}
+
+<div>
+    <input class="imgFile" type="file" accept="image/*">
+    <button class="button" onclick="uploadImage()">上传</button>
+    <label id="uploadInformation">
+        <font id="uploadInformationFont"></font>
+    </label>
+</div>
+<br>
+<ul class="images">
+</ul>
+<div class="dialogMask" style="display:none;"></div>
+<div class="dialog" style="display:none;">
+    <div class="dialogHeader">
+        <strong class="dialogTitle">删除</strong>
+    </div>
+    <a class="dialogClose" href="javascript:cancelDelete();"></a>
+    <div class="dialogContainer">
+        <div class="dialogForm">
+            <label>确认要删除吗？</label>
+            <br>
+        </div>
+        <div class="dialogFooter">
+            <label id="information"></label>
+            <button class="dialogConfirm" onclick="deleteImage()">确定</button>
+            <button class="dialogCancel" onclick="cancelDelete()">取消</button>
+        </div>
+    </div>
+</div>
+
+{{ end }}

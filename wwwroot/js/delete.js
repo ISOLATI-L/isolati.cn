@@ -1,7 +1,7 @@
-function post(url, data, contentType) {
+function deleteReq(url, data, contentType) {
     return new Promise(function (resolve, reject) {
         let request = new XMLHttpRequest();
-        request.open('POST', url, true);
+        request.open('DELETE', url, true);
         if (contentType != "") {
             request.setRequestHeader("Content-type", contentType);
         }

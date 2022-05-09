@@ -40,16 +40,15 @@ func isRequestAdmin(r *http.Request) (bool, error) {
 }
 
 func showAdminPage(w http.ResponseWriter, r *http.Request) {
-	adminTemplate.ExecuteTemplate(w, "layout", layoutMsg{
-		CssFiles: []string{"/css/sliderContainer.css", "/css/admin.css"},
-		JsFiles:  []string{"/js/carousel.js"},
-		PageName: "admin",
-		ContainerData: sliderContainerData{
-			LeftSliderData:  global.LEFT_SLIDER,
-			RightSliderData: global.RIGHT_SLIDER,
-			ContentData:     nil,
-		},
-	})
+	http.Redirect(w, r, "/admin/paragraphs", http.StatusSeeOther)
+	// adminTemplate.ExecuteTemplate(w, "layout", layoutMsg{
+	// 	CssFiles: []string{"/css/sliderContainer.css", "/css/admin.css"},
+	// 	JsFiles:  []string{},
+	// 	PageName: "admin",
+	// 	ContainerData: sliderContainerData{
+	// 		ContentData: nil,
+	// 	},
+	// })
 }
 
 func handleAdmin(w http.ResponseWriter, r *http.Request) {
@@ -66,31 +65,76 @@ func handleAdmin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	switch r.Method {
-	case http.MethodGet:
-		switch r.URL.Path {
-		case "/admin", "/admin/":
+	switch r.URL.Path {
+	case "/admin", "/admin/":
+		switch r.Method {
+		case http.MethodGet:
 			showAdminPage(w, r)
-		case "/admin/writing", "/admin/writing/":
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	case "/admin/writing":
+		switch r.Method {
+		case http.MethodGet:
 			showWritingPage(w, r)
 		default:
-			w.WriteHeader(http.StatusNotFound)
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	case "/admin/paragraphs":
+		switch r.Method {
+		case http.MethodGet:
+			showEditParagraphsPage(w, r)
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	case "/admin/images":
+		switch r.Method {
+		case http.MethodGet:
+			showEditImagesPage(w, r)
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	case "/admin/api/update":
+		switch r.Method {
+		case http.MethodGet:
+			w.WriteHeader(http.StatusOK)
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	case "/admin/api/paragraph":
+		switch r.Method {
+		case http.MethodPost:
+			apiUploadParagraph(w, r)
+		case http.MethodDelete:
+			apiDeleteParagraph(w, r)
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	case "/admin/api/image":
+		switch r.Method {
+		case http.MethodPost:
+			apiUploadImage(w, r)
+		case http.MethodDelete:
+			apiDeleteImage(w, r)
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
 	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
+		w.WriteHeader(http.StatusNotFound)
 	}
-
 }
 
 func registerAdminRoutes() {
 	template.Must(
 		adminTemplate.ParseFiles(
-			global.ROOT_PATH+"/wwwroot/layout.html",
+			global.ROOT_PATH+"/wwwroot/adminLayout.html",
 			global.ROOT_PATH+"/wwwroot/sliderContainer.html",
 			global.ROOT_PATH+"/wwwroot/admin.html",
 		),
 	)
+	registerEditParagraphsRoutes()
 	registerWritingRoutes()
+	registerEditImagesRoutes()
 	http.HandleFunc("/admin", handleAdmin)
 	http.HandleFunc("/admin/", handleAdmin)
 }

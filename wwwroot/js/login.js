@@ -3,7 +3,7 @@ function loginAdmin() {
     const MD5password = hash(password);
     console.log(MD5password);
 
-    post("/login", MD5password).then(
+    post("/login", MD5password, "application/x-www-form-urlencoded").then(
         function (res) {
             console.log(res);
             if (res.status === 200) {

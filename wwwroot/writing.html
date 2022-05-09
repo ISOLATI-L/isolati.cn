@@ -1,7 +1,29 @@
 {{ define "container" }}
 
+<textarea style="display:none;" id="title">{{ .Title }}</textarea>
 <div class="writing_container">
-    <div id="markdown_editor"></div>
+    <div id="markdown_editor">
+        <textarea style="display:none;" id="content">{{ .Content }}</textarea>
+    </div>
+</div>
+<div class="dialogMask" style="display:none;"></div>
+<div class="dialog" style="display:none;">
+    <div class="dialogHeader">
+        <strong class="dialogTitle">上传</strong>
+    </div>
+    <a class="dialogClose" href="javascript:cancelUpload();"></a>
+    <div class="dialogContainer">
+        <div class="dialogForm">
+            <label>标题</label>
+            <input type="text" id="titleInput">
+            <br>
+        </div>
+        <div class="dialogFooter">
+            <label id="information"></label>
+            <button class="dialogConfirm" onclick="upload()">确定</button>
+            <button class="dialogCancel" onclick="cancelUpload()">取消</button>
+        </div>
+    </div>
 </div>
 
 {{ end }}

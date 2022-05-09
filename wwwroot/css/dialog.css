@@ -1,0 +1,128 @@
+.dialogMask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgb(255, 255, 255);
+    opacity: 0.1;
+    z-index: 99998;
+}
+
+.dialog * {
+    box-sizing: border-box;
+}
+
+.dialog {
+    box-sizing: border-box;
+    position: fixed;
+    width: auto;
+    height: auto;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #666;
+
+    z-index: 99999;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    -ms-border-radius: 3px;
+    -o-border-radius: 3px;
+    border-radius: 3px;
+    -webkit-box-shadow: 0 0 10px rgb(0 0 0 / 30%);
+    -moz-box-shadow: 0 0 10px rgba(0, 0, 0, .3);
+    -ms-box-shadow: 0 0 10px rgba(0, 0, 0, .3);
+    -o-box-shadow: 0 0 10px rgba(0, 0, 0, .3);
+    box-shadow: 0 0 10px rgb(0 0 0 / 30%);
+    background: #fff;
+    font-size: 14px;
+}
+
+.dialogHeader {
+    padding: 11px 20px;
+    border-bottom: 1px solid #eee;
+    -webkit-transition: background 300ms ease-out;
+    -moz-transition: background 300ms ease-out;
+    transition: background 300ms ease-out;
+}
+
+.dialogClose {
+    position: absolute;
+    top: 12px;
+    right: 15px;
+    font-size: 18px;
+    text-decoration: none;
+    color: #ccc;
+    -webkit-transition: color 300ms ease-out;
+    -moz-transition: color 300ms ease-out;
+    transition: color 300ms ease-out;
+}
+
+.dialogClose::before {
+    content: "×";
+}
+
+.dialogContainer {
+    position: relative;
+    padding: 20px;
+    line-height: 1.4;
+}
+
+.dialogForm {
+    color: #666;
+}
+
+.dialogForm label,
+.dialogFooter label {
+    float: left;
+    display: block;
+    width: auto;
+    text-align: left;
+    padding: 7px 15px 15px 5px;
+    margin: 0 0 2px;
+    font-weight: 400;
+}
+
+.dialogForm input {
+    display: inline-block;
+    width: 264px;
+    color: #999;
+    padding: 8px;
+    border: 1px solid #ddd;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    appearance: none;
+    outline: none;
+}
+
+.dialogForm br {
+    clear: both;
+}
+
+.dialogFooter {
+    padding: 10px 0 0;
+    text-align: right;
+}
+
+.dialogConfirm,
+.dialogCancel {
+    color: #666;
+    min-width: 75px;
+    cursor: pointer;
+    background: #fff;
+    padding: 7px 10px;
+    border: 1px solid #ddd;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    -ms-border-radius: 3px;
+    -o-border-radius: 3px;
+    border-radius: 3px;
+    -webkit-transition: background 300ms ease-out;
+    -moz-transition: background 300ms ease-out;
+    transition: background 300ms ease-out;
+}
+
+.dialogCancel {
+    margin-left: 8px;
+}

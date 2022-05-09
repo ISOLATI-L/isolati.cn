@@ -191,3 +191,13 @@ font {
     color: #BFBFBF;
     transition: color 0.25s ease-in-out;
 }
+
+.footer_left {
+    height: 100%;
+    float: left;
+}
+
+.footer_right {
+    height: 100%;
+    float: right;
+}

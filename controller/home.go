@@ -10,16 +10,15 @@ import (
 var homeTemplate = template.New("home")
 
 func showHomePage(w http.ResponseWriter, r *http.Request) {
-	homeTemplate.ExecuteTemplate(w, "layout", layoutMsg{
-		CssFiles: []string{"/css/sliderContainer.css", "/css/home.css"},
-		JsFiles:  []string{"/js/carousel.js"},
-		PageName: "home",
-		ContainerData: sliderContainerData{
-			LeftSliderData:  global.LEFT_SLIDER,
-			RightSliderData: global.RIGHT_SLIDER,
-			ContentData:     nil,
-		},
-	})
+	http.Redirect(w, r, "/paragraphs", http.StatusSeeOther)
+	// homeTemplate.ExecuteTemplate(w, "layout", layoutMsg{
+	// 	CssFiles: []string{"/css/sliderContainer.css", "/css/home.css"},
+	// 	JsFiles:  []string{},
+	// 	PageName: "home",
+	// 	ContainerData: sliderContainerData{
+	// 		ContentData: nil,
+	// 	},
+	// })
 }
 
 func handleHome(w http.ResponseWriter, r *http.Request) {

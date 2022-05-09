@@ -5,7 +5,7 @@ import (
 )
 
 type Image struct {
-	Iid   uint64
-	Iname string
-	Itime time.Time
+	Iid     uint64
+	Isuffix string
+	Itime   time.Time
 }

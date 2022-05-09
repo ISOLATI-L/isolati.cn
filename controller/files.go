@@ -15,10 +15,6 @@ import (
 
 var filesTemplate = template.New("about")
 
-var fileHandler = http.StripPrefix(
-	"/files/",
-	http.FileServer(http.Dir(global.SHARE_FILES_PATH)),
-)
 var filePattern *regexp.Regexp
 var slashPattern *regexp.Regexp
 
@@ -81,13 +77,11 @@ func showFilesPage(w http.ResponseWriter, r *http.Request) {
 			JsFiles:  []string{},
 			PageName: "files",
 			ContainerData: sliderContainerData{
-				LeftSliderData:  global.LEFT_SLIDER,
-				RightSliderData: global.RIGHT_SLIDER,
-				ContentData:     filesList,
+				ContentData: filesList,
 			},
 		})
 	} else {
-		fileHandler.ServeHTTP(w, r)
+		http.ServeFile(w, r, filePath)
 	}
 }
 

@@ -1,0 +1,51 @@
+{{ define "content" }}
+
+<div class="paragraphFrame" page="{{ .Page }}">
+    <a class="default_link" href="/admin/writing">📄新文章</a>
+    <ul class="paragraphList">
+        {{ range .Paragraphs }}
+        <li>
+            <a target="_blank" href="/paragraphs/{{ .Pid }}">
+                <div class="text">
+                    <div class="title">
+                        <p class="titleText">{{ .Ptitle }}</p>
+                    </div>
+                    <div class="time">
+                        <p class="timeText">{{ .Ptime.Format "2006-01-02 15:04:05" }}</p>
+                    </div>
+                </div>
+            </a>
+            <span>
+                <div>
+                    <a class="default_link" href="/admin/writing?p={{ .Pid }}">编辑</a>
+                </div>
+                <div>
+                    <a class="default_link" href="javascript:showDeleteDialog({{ .Pid }});">删除</a>
+                </div>
+            </span>
+        </li>
+        {{ end }}
+    </ul>
+    <!-- <font>
+        <p>attr(page)</p>
+    </font> -->
+</div>
+<div class="dialogMask" style="display:none;"></div>
+<div class="dialog" style="display:none;">
+    <div class="dialogHeader">
+        <strong class="dialogTitle">删除</strong>
+    </div>
+    <a class="dialogClose" href="javascript:cancelDelete();"></a>
+    <div class="dialogContainer">
+        <div class="dialogForm">
+            <label>确认要删除吗？</label>
+            <br>
+        </div>
+        <div class="dialogFooter">
+            <label id="information"></label>
+            <button class="dialogConfirm" onclick="deleteParagraph()">确定</button>
+            <button class="dialogCancel" onclick="cancelDelete()">取消</button>
+        </div>
+    </div>
+</div>
+{{ end }}

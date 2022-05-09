@@ -15,8 +15,9 @@ import (
 )
 
 type VideoList struct {
-	Videos []database.Video
-	Page   int64
+	Videos    []database.Video
+	Page      int64
+	TotalPage int64
 }
 
 const MAX_VIDEOS_PER_PAGE = 10
@@ -63,9 +64,7 @@ func showVideoPage(w http.ResponseWriter, r *http.Request) {
 				JsFiles:  []string{},
 				PageName: "videos",
 				ContainerData: sliderContainerData{
-					LeftSliderData:  global.LEFT_SLIDER,
-					RightSliderData: global.RIGHT_SLIDER,
-					ContentData:     video.Vcontent,
+					ContentData: video.Vcontent,
 				},
 			})
 		} else {
@@ -143,8 +142,9 @@ func showVideosPage(w http.ResponseWriter, r *http.Request) {
 	defer rows.Close()
 
 	videos := VideoList{
-		Videos: []database.Video{},
-		Page:   page,
+		Videos:    []database.Video{},
+		Page:      page,
+		TotalPage: totalPage,
 	}
 	var video database.Video
 	for rows.Next() {
@@ -180,9 +180,7 @@ func showVideosPage(w http.ResponseWriter, r *http.Request) {
 		JsFiles:  []string{},
 		PageName: "videos",
 		ContainerData: sliderContainerData{
-			LeftSliderData:  global.LEFT_SLIDER,
-			RightSliderData: global.RIGHT_SLIDER,
-			ContentData:     videos,
+			ContentData: videos,
 		},
 	})
 }
@@ -190,10 +188,10 @@ func showVideosPage(w http.ResponseWriter, r *http.Request) {
 func handleVideos(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		if r.URL.Path == "/videos" ||
-			r.URL.Path == "/videos/" {
+		switch r.URL.Path {
+		case "/videos", "/videos/":
 			showVideosPage(w, r)
-		} else {
+		default:
 			showVideoPage(w, r)
 		}
 	default:

@@ -3,6 +3,7 @@ package controller
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -33,14 +34,12 @@ func showImagesPage(w http.ResponseWriter, r *http.Request) {
 		JsFiles:  []string{"/js/images.js", "/js/get.js"},
 		PageName: "images",
 		ContainerData: sliderContainerData{
-			LeftSliderData:  global.LEFT_SLIDER,
-			RightSliderData: global.RIGHT_SLIDER,
-			ContentData:     nil,
+			ContentData: nil,
 		},
 	})
 }
 
-func apiGetList(w http.ResponseWriter, r *http.Request) {
+func apiGetImagesList(w http.ResponseWriter, r *http.Request) {
 	var s, n int64
 	var err error
 	sStr := r.URL.Query().Get("s")
@@ -87,7 +86,7 @@ func apiGetList(w http.ResponseWriter, r *http.Request) {
 	}
 	var rows *sql.Rows
 	rows, err = transaction.Query(
-		`SELECT Iname FROM images
+		`SELECT Iid, Isuffix FROM images
 			ORDER BY Iid DESC LIMIT ?, ?;`,
 		s,
 		n,
@@ -102,9 +101,11 @@ func apiGetList(w http.ResponseWriter, r *http.Request) {
 
 	images := make([]string, 0)
 	for rows.Next() {
-		var imageName string
+		var imageID uint64
+		var imageSuffix string
 		err = rows.Scan(
-			&imageName,
+			&imageID,
+			&imageSuffix,
 		)
 		if err != nil {
 			transaction.Rollback()
@@ -112,7 +113,7 @@ func apiGetList(w http.ResponseWriter, r *http.Request) {
 			log.Println(err.Error())
 			return
 		}
-		images = append(images, imageName)
+		images = append(images, fmt.Sprintf("%d%s", imageID, imageSuffix))
 	}
 	transaction.Commit()
 
@@ -128,7 +129,7 @@ func handleImages(w http.ResponseWriter, r *http.Request) {
 		case "/images", "/images/":
 			showImagesPage(w, r)
 		case "/images/api/list":
-			apiGetList(w, r)
+			apiGetImagesList(w, r)
 		default:
 			showImagePage(w, r)
 		}

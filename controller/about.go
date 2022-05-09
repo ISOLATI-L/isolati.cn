@@ -15,9 +15,7 @@ func showAboutPage(w http.ResponseWriter, r *http.Request) {
 		JsFiles:  []string{},
 		PageName: "about",
 		ContainerData: sliderContainerData{
-			LeftSliderData:  global.LEFT_SLIDER,
-			RightSliderData: global.RIGHT_SLIDER,
-			ContentData:     nil,
+			ContentData: nil,
 		},
 	})
 }

@@ -1,3 +1,10 @@
+let titleTextarea = document.querySelector("#title");
+let contentTextarea = document.querySelector("#content");
+let dialogMask = document.querySelector(".dialogMask");
+let uploadDialog = document.querySelector(".dialog");
+let titleInput = document.querySelector("#titleInput");
+let information = document.querySelector("#information");
+
 let markdown_editor = editormd("markdown_editor", {
     width: "100%",
     height: "100%",
@@ -71,10 +78,24 @@ let markdown_editor = editormd("markdown_editor", {
         "fullscreen",
         "clear",
         "search",
+        "|",
+        "upload",
         // "|",
         // "help",
         // "info",
     ],
+    toolbarIconTexts: {
+        upload: "上传"
+    },
+    toolbarHandlers: {
+        upload: function (cm, icon, cursor, selection) {
+            let title = titleTextarea.value;
+            titleInput.value = title;
+            information.innerHTML = "";
+            dialogMask.style.display = "block";
+            uploadDialog.style.display = "block";
+        }
+    },
     onload: function () {
         console.log('onload', this);
         //this.fullscreen();
@@ -87,3 +108,35 @@ let markdown_editor = editormd("markdown_editor", {
         //this.resize("100%", 640);
     }
 });
+
+function cancelUpload() {
+    dialogMask.style.display = "none";
+    uploadDialog.style.display = "none";
+}
+
+function upload() {
+    let title = titleInput.value;
+    if (title === "") {
+        information.innerHTML = "请输入标题";
+        return
+    }
+    let content = contentTextarea.value;
+    let paragraphs = {
+        "title": title,
+        "content": content,
+    };
+    information.innerHTML = "上传中";
+    post("/admin/api/paragraph" + window.location.search, JSON.stringify(paragraphs), "application/json").then(
+        function (res) {
+            console.log(res);
+            if (res.status === 200) {
+                information.innerHTML = "上传成功";
+            } else {
+                information.innerHTML = "上传失败";
+            }
+        },
+        function (res) {
+            console.log(res);
+            information.innerHTML = "上传失败";
+        });
+}

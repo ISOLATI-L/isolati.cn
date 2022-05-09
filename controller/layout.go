@@ -9,9 +9,7 @@ import (
 )
 
 type sliderContainerData struct {
-	LeftSliderData  any
-	RightSliderData any
-	ContentData     any
+	ContentData any
 }
 
 type layoutMsg struct {

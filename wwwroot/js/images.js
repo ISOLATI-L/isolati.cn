@@ -1,21 +1,18 @@
 let imgData = [];
-const cols = 3;
 let arrH = [-5, -5, -5];
 let nImg = 0;
 let loadedImg = 0;
 let oParent = document.querySelector(".images");
-let end = false;
 let requesting = false;
+let loading = false;
 
 window.onload = function () {
-    window.onscroll = function () {
-        loadImg();
-    }
+    window.onscroll = loadImg;
     loadImg();
 };
 
 function loadImg() {
-    if (!requesting && checkScroll()) {
+    if (!loading && !requesting && checkScroll()) {
         if (nImg == imgData.length) {
             requesting = true;
             get("/images/api/list?s=" + String(nImg) + "&n=10").then(
@@ -26,17 +23,20 @@ function loadImg() {
                             imgData = imgData.concat(data);
                             addElement();
                         } else {
-                            end = true;
+                            window.onscroll = null;
                         }
+                        requesting = false;
                     } else {
-                        end = true;
+                        setTimeout(function () {
+                            requesting = false;
+                        }, 10000);
                     }
-                    requesting = false;
                 },
                 function (res) {
                     console.log(res);
-                    end = true;
-                    requesting = false;
+                    setTimeout(function () {
+                        requesting = false;
+                    }, 10000);
                 }
             );
         } else {
@@ -46,6 +46,7 @@ function loadImg() {
 }
 
 function addElement() {
+    loading = true;
     let aElement = document.createElement("a");
     aElement.className = "imageBox";
     aElement.target = "_blank";
@@ -57,6 +58,7 @@ function addElement() {
     imgElement.src = "/images/" + imgData[nImg];
     imgElement.onload = function () {
         waterfall(aElement, imgElement);
+        loading = false;
         loadImg()
     }
     aElement.appendChild(imgElement);
@@ -84,15 +86,13 @@ function getIndex(arr, val) {
 }
 
 function checkScroll() {
-    if (end) {
-        return false
-    }
+
     let imgBox = document.querySelectorAll('.imageBox');
     if (imgBox.length == 0) {
         return true;
     }
-    let minH = Math.min.apply(null, arrH);
+    let maxH = Math.min.apply(null, arrH);
     let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
     let documentHeight = document.documentElement.clientHeight;
-    return minH < scrollTop + documentHeight;
+    return maxH < scrollTop + documentHeight;
 }

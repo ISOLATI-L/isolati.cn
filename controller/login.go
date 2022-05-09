@@ -36,9 +36,7 @@ func showLoginPage(w http.ResponseWriter, r *http.Request) {
 			JsFiles:  []string{"/js/login.js", "/js/hash.js", "/js/post.js"},
 			PageName: "login",
 			ContainerData: sliderContainerData{
-				LeftSliderData:  global.LEFT_SLIDER,
-				RightSliderData: global.RIGHT_SLIDER,
-				ContentData:     nil,
+				ContentData: nil,
 			},
 		},
 		)

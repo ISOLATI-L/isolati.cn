@@ -5,8 +5,7 @@ import (
 )
 
 type Paragraph struct {
-	Pid      uint64
-	Ptitle   string
-	Pcontent string
-	Ptime    time.Time
+	Pid    uint64
+	Ptitle string
+	Ptime  time.Time
 }

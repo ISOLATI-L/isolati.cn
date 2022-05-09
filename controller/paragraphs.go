@@ -2,6 +2,7 @@ package controller
 
 import (
 	"database/sql"
+	"fmt"
 	"html/template"
 	"io"
 	"log"
@@ -19,6 +20,7 @@ import (
 type ParagraphsList struct {
 	Paragraphs []database.Paragraph
 	Page       int64
+	TotalPage  int64
 }
 
 const MAX_PARAGRAPHS_PER_PAGE = 10
@@ -42,14 +44,13 @@ func showParagraphPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		row := transaction.QueryRow(
-			`SELECT Pid, Pcontent FROM paragraphs
+			`SELECT Pid FROM paragraphs
 			WHERE Pid=?;`,
 			matches[1],
 		)
 		paragraph := database.Paragraph{}
-		row.Scan(
+		err = row.Scan(
 			&paragraph.Pid,
-			&paragraph.Pcontent,
 		)
 		if err != nil {
 			transaction.Rollback()
@@ -61,7 +62,7 @@ func showParagraphPage(w http.ResponseWriter, r *http.Request) {
 		// log.Println(paragraph)
 		if paragraph.Pid != 0 {
 			f, err := os.OpenFile(
-				global.ROOT_PATH+"wwwroot"+paragraph.Pcontent,
+				global.ROOT_PATH+"wwwroot/md/"+fmt.Sprint(paragraph.Pid)+".md",
 				os.O_RDONLY,
 				0666,
 			)
@@ -82,7 +83,7 @@ func showParagraphPage(w http.ResponseWriter, r *http.Request) {
 				log.Println(err.Error())
 				return
 			}
-			ContentData := template.HTML(buf)
+			ContentData := string(buf)
 			paragraphTemplate.ExecuteTemplate(w, "layout", layoutMsg{
 				CssFiles: []string{
 					"/css/sliderContainer.css",
@@ -105,9 +106,7 @@ func showParagraphPage(w http.ResponseWriter, r *http.Request) {
 				},
 				PageName: "paragraphs",
 				ContainerData: sliderContainerData{
-					LeftSliderData:  global.LEFT_SLIDER,
-					RightSliderData: global.RIGHT_SLIDER,
-					ContentData:     ContentData,
+					ContentData: ContentData,
 				},
 			})
 		} else {
@@ -187,6 +186,7 @@ func showParagraphsPage(w http.ResponseWriter, r *http.Request) {
 	paragraphs := ParagraphsList{
 		Paragraphs: []database.Paragraph{},
 		Page:       page,
+		TotalPage:  totalPage,
 	}
 	var paragraph database.Paragraph
 	for rows.Next() {
@@ -221,9 +221,7 @@ func showParagraphsPage(w http.ResponseWriter, r *http.Request) {
 		JsFiles:  []string{},
 		PageName: "paragraphs",
 		ContainerData: sliderContainerData{
-			LeftSliderData:  global.LEFT_SLIDER,
-			RightSliderData: global.RIGHT_SLIDER,
-			ContentData:     paragraphs,
+			ContentData: paragraphs,
 		},
 	})
 }
